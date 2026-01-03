@@ -1,0 +1,49 @@
+# ======================
+# Node / pnpm
+# ======================
+node_modules/
+.pnpm-store/
+
+# pnpm (lock thì nên commit)
+.pnpm-debug.log*
+
+# ======================
+# Build output
+# ======================
+dist/
+build/
+
+# ======================
+# Env
+# ======================
+.env
+.env.*
+!.env.example
+
+# ======================
+# Logs
+# ======================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ======================
+# OS
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Editor
+# ======================
+.vscode/
+!.vscode/extensions.json
+.idea/
+
+# ======================
+# Cache
+# ======================
+.cache/
+.eslintcache
