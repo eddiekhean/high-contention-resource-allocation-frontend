@@ -1,0 +1,223 @@
+/* ===============================
+   Simulation Page (global scope)
+   =============================== */
+
+.simulation-page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 64px 0;
+  color: #e5e5e5;
+}
+
+/* ---------- Headings ---------- */
+
+.simulation-page h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #b5b5b5;
+}
+
+.simulation-page h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* ---------- Intro ---------- */
+
+.simulation-page .intro p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #b5b5b5;
+  margin-bottom: 16px;
+}
+
+/* ---------- Simulation list ---------- */
+
+.simulation-page .simulation-list {
+  margin-top: 64px;
+}
+
+.simulation-page ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.simulation-page li {
+  padding: 12px 0;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.simulation-page .name {
+  display: block;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.simulation-page .meta {
+  font-size: 12px;
+  color: #8a8a8a;
+}
+
+/* ---------- Reveal animation ---------- */
+
+.simulation-page .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+.simulation-page .reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* =====================================================
+   PAGE WRAPPER
+   ===================================================== */
+
+.simulation-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 96px 24px 180px;
+  color: #e5e5e5;
+}
+
+/* giới hạn chiều ngang text để dễ đọc */
+.voucher-allocation-simulation .section {
+  max-width: 760px;
+  margin-top: 96px;
+}
+
+/* =====================================================
+   HERO SECTION
+   ===================================================== */
+
+.section-hero {
+  margin-top: 0;
+}
+
+.section-hero h1 {
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #f0f0f0;
+}
+
+.section-hero .lead {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 1.85;
+  color: #cfcfcf;
+  max-width: 720px;
+}
+
+/* =====================================================
+   SECTION HEADINGS
+   ===================================================== */
+
+.section h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  margin-bottom: 22px;
+}
+
+/* =====================================================
+   PARAGRAPHS
+   ===================================================== */
+
+.section p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #b5b5b5;
+  margin-bottom: 16px;
+}
+
+/* =====================================================
+   FAILURE BOX (Why Naive Approaches Fail)
+   ===================================================== */
+
+.section-box {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 36px;
+}
+
+.section-box h2 {
+  margin-bottom: 18px;
+}
+
+.failure-list {
+  margin-top: 18px;
+  padding-left: 18px;
+}
+
+.failure-list li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #d0d0d0;
+  margin-bottom: 12px;
+}
+
+/* =====================================================
+   DIVIDER SECTION (Simulation Entry)
+   ===================================================== */
+
+.section-divider {
+  padding-top: 56px;
+  border-top: 1px solid #1f1f1f;
+}
+
+/* =====================================================
+   MUTED / TRANSITION TEXT
+   ===================================================== */
+
+.muted {
+  margin-top: 24px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #8a8a8a;
+}
+
+/* =====================================================
+   REVEAL ANIMATION
+   ===================================================== */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =====================================================
+   RESPONSIVE (simple, safe)
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .simulation-page {
+    padding: 72px 20px 140px;
+  }
+
+  .section-hero h1 {
+    font-size: 30px;
+  }
+
+  .section {
+    margin-top: 72px;
+  }
+}

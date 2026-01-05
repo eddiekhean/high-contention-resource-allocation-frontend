@@ -1,0 +1,90 @@
+/* Global */
+body {
+  font-family: "Clash Grotesk", sans-serif;
+}
+
+/* Header */
+.header {
+  position: fixed;
+  top: 0; /* QUAN TRỌNG */
+  left: 0;
+  width: 100%;
+
+  height: var(--header-height);
+  background: #07070a;
+
+  display: grid;
+  grid-template-columns: 2fr 6fr 2fr;
+  align-items: center; /* KHÔNG dùng start */
+  padding: 0 16px;
+
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  height: var(--header-height);
+}
+
+/* Logo */
+.logo {
+  color: #fff;
+  font-weight: 500;
+  font-size: 18px;
+  padding-left: 5px;
+}
+
+/* Notch (menu) */
+.notch {
+  height: 100%;
+  background: #ffffff;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  text-align: center;
+}
+
+.notch a {
+  color: #07070a;
+  font-size: 18px;
+  font-weight: 200;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.notch a:hover {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* GitHub */
+.github {
+  color: #e5e5e5;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.github:hover {
+  opacity: 1;
+  font-weight: 500;
+}
+
+.left,
+.right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.right {
+  justify-content: flex-end;
+}
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
