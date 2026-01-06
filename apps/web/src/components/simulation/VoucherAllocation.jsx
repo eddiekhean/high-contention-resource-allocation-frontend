@@ -1,5 +1,6 @@
 import "./simulation.css";
 import { useReveal } from "../../hooks/useReveal";
+import { useState } from "react";
 import { useRevealOnMount } from "../../hooks/useRevealOnMount";
 
 export default function VoucherAllocationSimulation() {
@@ -8,7 +9,51 @@ export default function VoucherAllocationSimulation() {
   const pressureRef = useReveal();
   const failureRef = useReveal();
   const entryRef = useReveal();
+  const [form, setForm] = useState({
+    total_clients: 100,
+    total_vouchers: 2,
+    seed: 23,
+    policy: "fifo",
+  });
 
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm({
+      ...form,
+      [name]: name === "policy" ? value : Number(value),
+    });
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const res = await fetch("http://localhost:8080/simulate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        throw new Error("Simulation failed");
+      }
+
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      alert("Error running simulation");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <main className="simulation-page voucher-allocation-simulation">
       {/* ===== HERO ===== */}
@@ -39,8 +84,9 @@ export default function VoucherAllocationSimulation() {
 
         <p>
           The challenge is not only that resources are finite, but that requests
-          often arrive nearly simultaneously. Under these conditions, millisecond
-          differences can determine whether a request succeeds or fails.
+          often arrive nearly simultaneously. Under these conditions,
+          millisecond differences can determine whether a request succeeds or
+          fails.
         </p>
       </section>
 
@@ -73,10 +119,10 @@ export default function VoucherAllocationSimulation() {
         <h2>Why Naive Approaches Fail</h2>
 
         <p>
-          Simple strategies such as First-Come-First-Serve or Strict Priority are
-          often chosen for their conceptual simplicity and ease of implementation.
-          Under high contention, however, their limitations become immediately
-          apparent.
+          Simple strategies such as First-Come-First-Serve or Strict Priority
+          are often chosen for their conceptual simplicity and ease of
+          implementation. Under high contention, however, their limitations
+          become immediately apparent.
         </p>
 
         <ul className="failure-list">
@@ -85,8 +131,8 @@ export default function VoucherAllocationSimulation() {
             resources, even after waiting for extended periods.
           </li>
           <li>
-            Latency becomes unpredictable and strongly dependent on timing rather
-            than business intent.
+            Latency becomes unpredictable and strongly dependent on timing
+            rather than business intent.
           </li>
           <li>
             The system lacks explainability, making it difficult to reason about
@@ -101,8 +147,8 @@ export default function VoucherAllocationSimulation() {
 
         <p>
           The simulation below initializes a complete allocation scenario. A
-          fixed number of resources is defined upfront, and a burst of concurrent
-          requests is generated according to configurable parameters.
+          fixed number of resources is defined upfront, and a burst of
+          concurrent requests is generated according to configurable parameters.
         </p>
 
         <p>
@@ -111,13 +157,78 @@ export default function VoucherAllocationSimulation() {
         </p>
 
         <p className="muted">
-          The following sections focus on visualizing these decisions, from queue
-          state evolution to final allocation outcomes.
+          The following sections focus on visualizing these decisions, from
+          queue state evolution to final allocation outcomes.
         </p>
       </section>
+{/* Simulation Parameters Section */}
+      <section className="section">
+        <div className="m2 simulation-card">
+          <div className="card-content">
+            <h2>Simulation Parameters</h2>
 
-      {/* ===== ACTION PLACEHOLDER ===== */}
-      {/* Start Simulation / Visualization goes here */}
+            <div className="form-grid">
+              <label>
+                Total Clients
+                <input
+                  type="number"
+                  name="total_clients"
+                  value={form.total_clients}
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                Total Vouchers
+                <input
+                  type="number"
+                  name="total_vouchers"
+                  value={form.total_vouchers}
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                Seed
+                <input
+                  type="number"
+                  name="seed"
+                  value={form.seed}
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                Policy
+                <select
+                  name="policy"
+                  value={form.policy}
+                  onChange={handleChange}
+                >
+                  <option value="fifo">FIFO</option>
+                  <option value="lifo">LIFO</option>
+                  <option value="random">Random</option>
+                </select>
+              </label>
+            </div>
+
+            <button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Running..." : "Start Simulation"}
+            </button>
+          </div>
+        </div>
+      </section>
+{/* Simulation Parameters Section */}
+      {result && (
+  <section className="section">
+    <div className="m2 simulation-card">
+      <div className="card-content">
+        <h2>Simulation Result</h2>
+        <pre>{JSON.stringify(result, null, 2)}</pre>
+      </div>
+    </div>
+  </section>
+)}
     </main>
   );
 }

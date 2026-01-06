@@ -1,13 +1,13 @@
 import "./simulation.css";
 import { Link } from "react-router-dom";
-import { useReveal } from "../../hooks/useReveal";
+import useReveal from "../../hooks/useReveal";
 import { useRevealOnMount } from "../../hooks/useRevealOnMount";
 export default function SimulationContent() {
   const introRef = useRevealOnMount(150);
   const listRef = useReveal();
 
   return (
-    <main className="simulation-page">
+    <main className="simulation-page simulation-index">
       <section ref={introRef} className="intro reveal">
         <h1>Learning Journey</h1>
 

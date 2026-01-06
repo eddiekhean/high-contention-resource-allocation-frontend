@@ -1,80 +1,3 @@
-/* ===============================
-   Simulation Page (global scope)
-   =============================== */
-
-.simulation-page {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 64px 0;
-  color: #e5e5e5;
-}
-
-/* ---------- Headings ---------- */
-
-.simulation-page h1 {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  color: #b5b5b5;
-}
-
-.simulation-page h2 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-/* ---------- Intro ---------- */
-
-.simulation-page .intro p {
-  font-size: 14px;
-  line-height: 1.8;
-  color: #b5b5b5;
-  margin-bottom: 16px;
-}
-
-/* ---------- Simulation list ---------- */
-
-.simulation-page .simulation-list {
-  margin-top: 64px;
-}
-
-.simulation-page ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.simulation-page li {
-  padding: 12px 0;
-  border-bottom: 1px solid #1f1f1f;
-}
-
-.simulation-page .name {
-  display: block;
-  font-size: 14px;
-  color: #ffffff;
-}
-
-.simulation-page .meta {
-  font-size: 12px;
-  color: #8a8a8a;
-}
-
-/* ---------- Reveal animation ---------- */
-
-.simulation-page .reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.8s ease,
-    transform 0.8s ease;
-}
-
-.simulation-page .reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 /* =====================================================
    PAGE WRAPPER
    ===================================================== */
@@ -82,42 +5,52 @@
 .simulation-page {
   max-width: 1040px;
   margin: 0 auto;
-  padding: 96px 24px 180px;
+  padding: 96px 24px 160px;
   color: #e5e5e5;
 }
 
-/* giới hạn chiều ngang text để dễ đọc */
+/* =====================================================
+   SECTION LAYOUT
+   ===================================================== */
+
+/* tất cả section đều center + spacing rõ */
 .voucher-allocation-simulation .section {
   max-width: 760px;
-  margin-top: 96px;
+  margin: 0 auto;
+}
+
+/* khoảng cách giữa các section */
+.voucher-allocation-simulation .section + .section {
+  margin-top: 56px;
 }
 
 /* =====================================================
-   HERO SECTION
+   HERO
    ===================================================== */
 
 .section-hero {
+  max-width: none;
   margin-top: 0;
 }
 
 .section-hero h1 {
-  font-size: 38px;
-  font-weight: 600;
+  font-size: 40px;
+  font-weight: 650;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.15;
   color: #f0f0f0;
+  margin-bottom: 20px;
 }
 
 .section-hero .lead {
-  margin-top: 20px;
-  font-size: 16px;
-  line-height: 1.85;
+  font-size: 17px;
+  line-height: 1.75;
   color: #cfcfcf;
   max-width: 720px;
 }
 
 /* =====================================================
-   SECTION HEADINGS
+   HEADINGS
    ===================================================== */
 
 .section h2 {
@@ -126,7 +59,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #9a9a9a;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 /* =====================================================
@@ -134,57 +67,212 @@
    ===================================================== */
 
 .section p {
-  font-size: 14px;
-  line-height: 1.9;
-  color: #b5b5b5;
-  margin-bottom: 16px;
-}
-
-/* =====================================================
-   FAILURE BOX (Why Naive Approaches Fail)
-   ===================================================== */
-
-.section-box {
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid #1f1f1f;
-  border-radius: 14px;
-  padding: 36px;
-}
-
-.section-box h2 {
-  margin-bottom: 18px;
-}
-
-.failure-list {
-  margin-top: 18px;
-  padding-left: 18px;
-}
-
-.failure-list li {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.7;
-  color: #d0d0d0;
+  color: #c2c2c2;
   margin-bottom: 12px;
 }
 
 /* =====================================================
-   DIVIDER SECTION (Simulation Entry)
+   FAILURE BOX
+   ===================================================== */
+
+.section-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #1f1f1f;
+  border-radius: 16px;
+  padding: 36px 40px;
+}
+
+.section-box h2 {
+  margin-bottom: 14px;
+}
+
+.failure-list {
+  margin-top: 16px;
+  padding-left: 18px;
+}
+
+.failure-list li {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #d0d0d0;
+  margin-bottom: 10px;
+}
+
+/* =====================================================
+   DIVIDER SECTION
    ===================================================== */
 
 .section-divider {
-  padding-top: 56px;
+  padding-top: 40px;
   border-top: 1px solid #1f1f1f;
 }
 
 /* =====================================================
-   MUTED / TRANSITION TEXT
+   MUTED TEXT
    ===================================================== */
 
 .muted {
-  margin-top: 24px;
+  margin-top: 20px;
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.6;
   color: #8a8a8a;
+}
+
+/* =====================================================
+   SIMULATION CARD (m2 OVERRIDE)
+   ===================================================== */
+
+.simulation-card.m2 {
+  position: relative;         
+  width: 100%;
+  height: auto;
+  display: block;
+  padding: 2px;
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    #1e1e24 10%,
+    #0b0b0f 60%,
+    #050505 100%
+  );
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease-in-out infinite;
+  user-select: none;
+
+  isolation: isolate;         
+}
+
+.simulation-card.m2::before,
+.simulation-card.m2::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 22px;
+  pointer-events: none;
+}
+
+.simulation-card.m2::after {
+  z-index: -1;
+  background: radial-gradient(circle at 0 0, #ff9f43, transparent),
+              radial-gradient(circle at 100% 0, #00a6ff, transparent),
+              radial-gradient(circle at 0 100%, #ff0056, transparent),
+              radial-gradient(circle at 100% 100%, #6500ff, transparent);
+}
+
+.simulation-card.m2::before {
+  z-index: -2;
+  filter: blur(24px);
+  background: inherit;
+  animation: blur-animation 3s ease-in-out alternate infinite;
+}
+
+
+/* Faster blur animation */
+@keyframes blur-animation {
+  to {
+    filter: blur(3vmin);
+    transform: scale(1.05);
+  }
+}
+
+/* Faster gradient animation */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+.simulation-card.m2::before,
+.simulation-card.m2::after {
+  border-radius: 20px;
+}
+
+/* inner content */
+.simulation-card .card-content {
+  background: rgba(10, 10, 14, 0.88);
+  border-radius: 16px;
+  padding: 36px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.simulation-card h2 {
+  margin-top: 0;
+}
+
+/* =====================================================
+   FORM
+   ===================================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: #cfcfcf;
+}
+
+input,
+select {
+  margin-top: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #0d0d12;
+  border: 1px solid #222;
+  border-radius: 8px;
+  color: #eaeaea;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3a3a3a;
+}
+
+/* button */
+button {
+  margin-top: 28px;
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  background: #121218;
+  color: #eaeaea;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   RESULT BLOCK
+   ===================================================== */
+
+.simulation-card pre {
+  margin-top: 18px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
 }
 
 /* =====================================================
@@ -205,19 +293,155 @@
 }
 
 /* =====================================================
-   RESPONSIVE (simple, safe)
+   RESPONSIVE
    ===================================================== */
 
 @media (max-width: 768px) {
   .simulation-page {
-    padding: 72px 20px 140px;
+    padding: 64px 20px 120px;
   }
 
   .section-hero h1 {
     font-size: 30px;
   }
 
-  .section {
-    margin-top: 72px;
+  .form-grid {
+    grid-template-columns: 1fr;
   }
+}
+.simulation-index .intro {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.simulation-index h1 {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.simulation-index .lead {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #cfcfcf;
+  margin-bottom: 24px;
+}
+
+.simulation-index p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #bdbdbd;
+  margin-bottom: 14px;
+}
+
+.simulation-index .simulation-list {
+  max-width: 720px;
+  margin: 72px auto 0;
+}
+
+.simulation-index h2 {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  margin-bottom: 18px;
+}
+
+.simulation-index ul {
+  list-style: none;
+  padding: 0;
+}
+
+.simulation-index li {
+  padding: 16px 0;
+  border-bottom: 1px solid #1f1f1f;
+}
+
+.simulation-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.simulation-index .name {
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.simulation-index .meta {
+  font-size: 12px;
+  color: #8a8a8a;
+}
+/* From Uiverse.io by Cksunandh */
+.m2 {
+  position: relative;
+  width: 20vmin;
+  height: 20vmin;
+  background: #0b0b0f; /* nền tối */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.m2-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.m2 {
+  position: relative;
+  z-index: 1;
+}
+
+.m2::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(
+    135deg,
+    #ff8a00,
+    #ff4d4d,
+    #7a5cff
+  );
+  filter: blur(60px);
+  opacity: 0.6;
+  z-index: -1;
+  transform: translateY(25%);
+}
+.m2::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 140, 0, 0.35),
+    transparent 60%
+  );
+  filter: blur(30px);
+  z-index: -2;
+}
+
+.m2::after {
+  --size: 2px;
+  z-index: -1;
+}
+
+.m2::before {
+  --size: 10px;
+  z-index: -2;
+  filter: blur(2vmin);
+  animation: blur-animation 3s ease-in-out alternate infinite;
+}
+
+@keyframes blur-animation {
+  to {
+    filter: blur(3vmin);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

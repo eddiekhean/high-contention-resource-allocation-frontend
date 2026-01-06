@@ -10,7 +10,6 @@ export default function Header() {
         <img src={logoImg} alt="Scratchpad" className="logo-image" />
         <span className="logo">Scratchpad</span>
       </div>
-
       <nav className="notch">
         <Link to="">Home</Link>
         <Link to="/simulation">Simulation</Link>

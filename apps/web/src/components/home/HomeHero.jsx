@@ -1,5 +1,4 @@
 import "./home.css";
-
 export default function HomeHero() {
   return (
     <section className="home-hero">

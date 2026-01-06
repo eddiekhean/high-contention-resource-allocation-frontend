@@ -13,8 +13,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/simulation" element={<Simulation />} />
-            <Route path="/simulations/voucher-allocation" element={<VoucherAllocationSimulation />}
-        />
+            <Route
+              path="/simulations/voucher-allocation"
+              element={<VoucherAllocationSimulation />}
+            />
           </Routes>
         </main>
       </div>
