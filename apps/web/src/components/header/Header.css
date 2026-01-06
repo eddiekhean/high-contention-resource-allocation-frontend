@@ -102,7 +102,7 @@ body {
   font-weight: 300;
   text-decoration: none;
   opacity: 0.8;
-  transition: 
+  transition:
     opacity 0.25s ease,
     transform 0.25s ease,
     text-shadow 0.25s ease;

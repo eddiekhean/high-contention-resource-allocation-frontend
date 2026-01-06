@@ -1,4 +1,4 @@
-import "./simulation.css";
+import "./css/simulation.css";
 import { Link } from "react-router-dom";
 import useReveal from "../../hooks/useReveal";
 import { useRevealOnMount } from "../../hooks/useRevealOnMount";
