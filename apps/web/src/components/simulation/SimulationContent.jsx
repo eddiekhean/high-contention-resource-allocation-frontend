@@ -56,20 +56,6 @@ export default function SimulationContent() {
               <span className="meta">Redis · Concurrency · Fairness</span>
             </Link>
           </li>
-
-          <li>
-            <div className="item-header">
-              <span className="name">Request Scheduling Strategies</span>
-            </div>
-            <span className="meta">FIFO · Priority · Hybrid</span>
-          </li>
-
-          <li>
-            <div className="item-header">
-              <span className="name">Rate Limiting & Backpressure</span>
-            </div>
-            <span className="meta">Token Bucket · Queue</span>
-          </li>
         </ul>
       </section>
     </main>

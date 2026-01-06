@@ -16,7 +16,6 @@ export default function Header() {
         <Link to="/leetcode">LeetCode</Link>
         <Link to="/system-design">System Design</Link>
       </nav>
-
       <div className="right">
         <a
           className="github"

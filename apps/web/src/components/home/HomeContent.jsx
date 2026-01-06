@@ -1,4 +1,4 @@
-import { useReveal } from "../../hooks/UseReveal";
+import useReveal from "../../hooks/useReveal";
 
 export default function HomeContent() {
   const titleRef = useReveal();
