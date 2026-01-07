@@ -148,8 +148,12 @@
 }
 
 @keyframes flow-move {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -56; }
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -56;
+  }
 }
 /*  */
 .flow-path {

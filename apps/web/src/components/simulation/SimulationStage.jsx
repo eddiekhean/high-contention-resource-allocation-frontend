@@ -1,19 +1,33 @@
 import "./css/stage.css";
 import "./css/box.css";
 import { useEffect, useRef, useState } from "react";
-
-export default function SimulationStage({ simulationData }) {
+import { useMemo } from "react";
+export default function SimulationStage({
+  simulationData,
+  decisions,
+  totalVouchers,
+}) {
   const arrivalList = simulationData?.arrivals ?? [];
   const [clients, setClients] = useState([]);
   const [gatewayCenter, setGatewayCenter] = useState(null);
   const [backendCenter, setBackendCenter] = useState(null);
-  const TOTAL_VOUCHERS = simulationData?.totalVouchers ?? 10;
-  const [voucherSlots, setVoucherSlots] = useState(
-  Array.from({ length: TOTAL_VOUCHERS }, (_, i) => ({
-    id: i,
-    status: "available", // available | reserved | used
-  }))
-);
+  const [respondedClients, setRespondedClients] = useState(() => new Set());
+
+  const voucherSlots = useMemo(() => {
+    const allocatedCount = decisions.filter(
+      (d) => d.action === "allocated"
+    ).length;
+
+    return Array.from({ length: totalVouchers }, (_, i) => ({
+      id: i,
+      status: i < allocatedCount ? "used" : "available",
+    }));
+  }, [decisions, totalVouchers]);
+  const decisionByClientId = useMemo(() => {
+    const map = new Map();
+    decisions.forEach((d) => map.set(d.clientId, d));
+    return map;
+  }, [decisions]);
   const cursorRef = useRef(0);
   const stageRef = useRef(null);
   const clientRef = useRef(null);
@@ -27,17 +41,6 @@ export default function SimulationStage({ simulationData }) {
   const CLIENT_SIZE = 24;
   const PADDING = 16;
   const TITLE_HEIGHT = 32;
-function consumeVoucher() {
-  setVoucherSlots((prev) => {
-    const idx = prev.findIndex((v) => v.status === "available");
-    if (idx === -1) return prev; // hết voucher → reject
-
-    const next = [...prev];
-    next[idx] = { ...next[idx], status: "used", pulse: true };
-    return next;
-  });
-}
-
   function spawnBatch(arrivalList, spawnArea, baseCursor, batchSize, now) {
     setClients((prev) => {
       const nextClients = [];
@@ -110,12 +113,38 @@ function consumeVoucher() {
     return () => clearInterval(timer);
   }, [arrivalList]);
   useEffect(() => {
-  if (!simulationData) return;
+    if (!simulationData) return;
 
-  console.log("=== simulationData ===");
-  console.log(simulationData);
-  console.log("arrivals:", simulationData?.arrivals);
-}, [simulationData]);
+    console.log("=== simulationData ===");
+    console.log(simulationData);
+    console.log("arrivals:", simulationData?.arrivals);
+  }, [simulationData]);
+useEffect(() => {
+  if (!clients.length) return;
+
+  const RESPONSE_DELAY = 600;
+
+  const timers = [];
+
+  clients.forEach((c) => {
+    const decision = decisionByClientId.get(c.id);
+    if (!decision) return;
+
+    if (respondedClients.has(c.id)) return;
+
+    const t = setTimeout(() => {
+      setRespondedClients((prev) => {
+        const next = new Set(prev);
+        next.add(c.id);
+        return next;
+      });
+    }, RESPONSE_DELAY);
+
+    timers.push(t);
+  });
+
+  return () => timers.forEach(clearTimeout);
+}, [clients, decisionByClientId, respondedClients]);
 
   useEffect(() => {
     const cleaner = setInterval(() => {
@@ -138,122 +167,136 @@ function consumeVoucher() {
     });
   }, [clients.length]);
   function buildCurvePath(x1, y1, x2, y2, offsetX = 0) {
-  const mx = (x1 + x2) / 2 + offsetX;
-  const my = (y1 + y2) / 2;
+    const mx = (x1 + x2) / 2 + offsetX;
+    const my = (y1 + y2) / 2;
 
-  return `M ${x1} ${y1}
+    return `M ${x1} ${y1}
           Q ${mx} ${my}
             ${x2} ${y2}`;
-}
-
+  }
 
   useEffect(() => {
-  if (!stageRef.current || !gatewayRef.current || !backendRef.current) return;
+    if (!stageRef.current || !gatewayRef.current || !backendRef.current) return;
 
-  const stageRect = stageRef.current.getBoundingClientRect();
+    const stageRect = stageRef.current.getBoundingClientRect();
 
-  const centerOf = (ref) => {
-    const r = ref.current.getBoundingClientRect();
-    return {
-      x: r.left - stageRect.left + r.width / 2,
-      y: r.top - stageRect.top + r.height / 2,
+    const centerOf = (ref) => {
+      const r = ref.current.getBoundingClientRect();
+      return {
+        x: r.left - stageRect.left + r.width / 2,
+        y: r.top - stageRect.top + r.height / 2,
+      };
     };
-  };
 
-  setGatewayCenter(centerOf(gatewayRef));
-  setBackendCenter(centerOf(backendRef));
-}, []);
+    setGatewayCenter(centerOf(gatewayRef));
+    setBackendCenter(centerOf(backendRef));
+  }, []);
+const remainingVouchers = voucherSlots.filter(
+  (v) => v.status === "available"
+).length;
 
   return (
     <div ref={stageRef} className="simulation-stage">
       <svg className="links-layer">
-  <defs>
-    <marker
-      id="arrow"
-      markerWidth="8"
-      markerHeight="8"
-      refX="7"
-      refY="4"
-      orient="auto"
-    >
-      <path d="M0,0 L8,4 L0,8 Z" fill="rgba(200,200,220,0.6)" />
-    </marker>
-  </defs>
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="8"
+            markerHeight="8"
+            refX="7"
+            refY="4"
+            orient="auto"
+          >
+            <path d="M0,0 L8,4 L0,8 Z" fill="rgba(200,200,220,0.6)" />
+          </marker>
+        </defs>
 
-  {/* ===== GATEWAY ↔ BACKEND FLOWS (STATIC) ===== */}
-  {gatewayCenter && backendCenter && (
-  <>
-    {/* Gateway → Backend (request) */}
-    <path
-      d={buildCurvePath(
-        gatewayCenter.x,
-        gatewayCenter.y,
-        backendCenter.x,
-        backendCenter.y,
-        -32 // lệch trái
-      )}
-      className="flow-path flow-forward"
-    />
+        {/* ===== GATEWAY ↔ BACKEND FLOWS (STATIC) ===== */}
+        {gatewayCenter && backendCenter && (
+          <>
+            {/* Gateway → Backend (request) */}
+            <path
+              d={buildCurvePath(
+                gatewayCenter.x,
+                gatewayCenter.y,
+                backendCenter.x,
+                backendCenter.y,
+                -32 // lệch trái
+              )}
+              className="flow-path flow-forward"
+            />
 
-    {/* Backend → Gateway (response) */}
-    <path
-      d={buildCurvePath(
-        backendCenter.x,
-        backendCenter.y,
-        gatewayCenter.x,
-        gatewayCenter.y,
-        32 // lệch phải
-      )}
-      className="flow-path flow-backward"
-    />
-  </>
+            {/* Backend → Gateway (response) */}
+            <path
+              d={buildCurvePath(
+                backendCenter.x,
+                backendCenter.y,
+                gatewayCenter.x,
+                gatewayCenter.y,
+                32 // lệch phải
+              )}
+              className="flow-path flow-backward"
+            />
+          </>
+        )}
+
+        {/* ===== CLIENT → GATEWAY FLOWS ===== */}
+        {/* ===== CLIENT ↔ GATEWAY FLOWS ===== */}
+        {gatewayCenter &&
+          clients.map((c) => {
+            const cx = c.x;
+            const cy = c.y;
+            const gx = gatewayCenter.x;
+            const gy = gatewayCenter.y;
+            const decision = decisionByClientId.get(c.id);
+const isAccepted = decision?.action === "allocated";
+const showResponse = respondedClients.has(c.id);
+
+
+            // Request: Client → Gateway (lệch trái)
+            const requestPath = buildCurvePath(cx, cy, gx, gy, -20);
+
+            // Response: Gateway → Client (lệch phải)
+            const responsePath = buildCurvePath(gx, gy, cx, cy, 20);
+
+            return (
+              <g key={c.id}>
+                {/* Request – luôn có */}
+<path
+  d={requestPath}
+  className="flow-path flow-forward"
+  markerEnd="url(#arrow)"
+/>
+
+{/* Response – chỉ hiện khi đã respond */}
+{showResponse && (
+  <path
+    d={responsePath}
+    className={`flow-path ${
+      isAccepted ? "flow-accepted" : "flow-rejected"
+    }`}
+    markerEnd="url(#arrow)"
+  />
 )}
 
-  {/* ===== CLIENT → GATEWAY FLOWS ===== */}
-  {/* ===== CLIENT ↔ GATEWAY FLOWS ===== */}
-{gatewayCenter &&
-  clients.map((c) => {
-    const cx = c.x;
-    const cy = c.y;
-    const gx = gatewayCenter.x;
-    const gy = gatewayCenter.y;
 
-    // Request: Client → Gateway (lệch trái)
-    const requestPath = buildCurvePath(cx, cy, gx, gy, -20);
 
-    // Response: Gateway → Client (lệch phải)
-    const responsePath = buildCurvePath(gx, gy, cx, cy, 20);
-
-    return (
-      <g key={c.id}>
-        {/* Request */}
-        <path
-          d={requestPath}
-          className="flow-path flow-forward"
-          markerEnd="url(#arrow)"
-        />
-
-        {/* Response */}
-        <path
-          d={responsePath}
-          className="flow-path flow-backward"
-          markerEnd="url(#arrow)"
-        />
-
-        {/* Client node */}
-        <g
-          transform={`translate(${cx}, ${cy})`}
-          className={`client-node ${c.type} animation`}
-        >
-          <circle cx="0" cy="0" r="20" />
-          <text y="4" textAnchor="middle">
-            {c.id}
-          </text>
-        </g>
-      </g>
-    );
-  })}
-</svg>
+                {/* Client node */}
+                <g
+                  transform={`translate(${cx}, ${cy})`}
+                  className={`client-node ${c.type} ${
+                    isAccepted ? "accepted" : "rejected"
+                  } animation`}
+                >
+                  <circle cx="0" cy="0" r="20" />
+                  <text y="4" textAnchor="middle">
+                    {c.id}
+                  </text>
+                </g>
+              </g>
+            );
+          })}
+      </svg>
 
       <div ref={clientRef} className="box clients">
         <div className="title">Clients</div>
@@ -266,13 +309,26 @@ function consumeVoucher() {
       <div ref={backendRef} className="box backend">
   <div className="title">Backend</div>
 
+  <p className="voucher-counter">
+    Remaining vouchers: <strong>{remainingVouchers}</strong>
+  </p>
+
+  <div className="voucher-slots">
+    {voucherSlots.map((v) => (
+      <div
+        key={v.id}
+        className={`voucher-slot ${v.status}`}
+      />
+    ))}
+  </div>
+
+  <p>Core Services</p>
   <ul className="backend-roles">
     <li>Request scheduling</li>
     <li>Priority-based admission</li>
     <li>Limited resource allocation</li>
   </ul>
 </div>
-
 
     </div>
   );

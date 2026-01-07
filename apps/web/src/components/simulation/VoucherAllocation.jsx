@@ -1,10 +1,11 @@
 import "./css/simulation.css";
+import { useMemo } from "react";
 // import useReveal from "../../hooks/useReveal";
 import { useState } from "react";
+import { normalizeClientDecisions } from "../../services/normalizeSimulation";
 // import { useRevealOnMount } from "../../hooks/useRevealOnMount";
 import SimulationStage from "./SimulationStage";
 import { runSimulation } from "../../services/simulationApi";
-
 
 export default function VoucherAllocationSimulation() {
   // const heroRef = useRevealOnMount(150);
@@ -37,6 +38,7 @@ export default function VoucherAllocationSimulation() {
 
     try {
       const data = await runSimulation(form);
+      console.log("RAW backend data:", data);
       setSimulationData(data);
     } catch (err) {
       setError(err.message);
@@ -44,6 +46,19 @@ export default function VoucherAllocationSimulation() {
       setLoading(false);
     }
   };
+
+  const decisions = useMemo(() => {
+    if (
+      !simulationData ||
+      !simulationData.events ||
+      !simulationData.events.ArrivalOrder
+    ) {
+      return [];
+    }
+
+    return normalizeClientDecisions(simulationData);
+  }, [simulationData]);
+
   return (
     <main className="simulation-page voucher-allocation-simulation">
       {/* ===== HERO ===== */}
@@ -112,7 +127,12 @@ export default function VoucherAllocationSimulation() {
         {/* Simulation Parameters Section */}
         {/* {simulationData && ( */}
         {/* <SimulationTable simulationData={simulationData} /> */}
-        <SimulationStage simulationData={simulationData} />
+        <SimulationStage
+          simulationData={simulationData}
+          decisions={decisions}
+          totalVouchers={form.total_vouchers}
+        />
+
         {/* )} */}
       </section>
     </main>
