@@ -1,21 +1,30 @@
 .simulation-stage {
-  margin-top: 100px;
+  margin-top: 60px;
   width: 100%;
   position: relative;
-  height: 700px;
-  background: radial-gradient(1200px 600px at 50% -200px, #1a1a22, #0b0b0f 60%);
+  /* Use min-height to allow expansion if content is tall */
+  min-height: 900px;
+  height: auto;
+  background: radial-gradient(1200px 900px at 50% -100px, #1a1a22, #0b0b0f 70%);
   overflow: hidden;
-  gap: 56px;
+
+  /* Flex layout to space out the boxes vertically */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 0;
 }
 
 .links-layer {
   position: absolute;
-  inset: 0; /* <<< CỰC QUAN TRỌNG */
+  inset: 0;
   width: 100%;
   height: 100%;
   z-index: 100000;
   pointer-events: none;
 }
+
 /* =========================
    Base SVG Client Node
    ========================= */
@@ -63,8 +72,7 @@
   fill: #2a1620;
   stroke: #ff7fa8;
   stroke-width: 2.6;
-  filter: drop-shadow(0 0 4px rgba(255, 127, 168, 0.35))
-    drop-shadow(0 0 8px rgba(255, 127, 168, 0.18));
+  filter: drop-shadow(0 0 4px rgba(255, 127, 168, 0.35)) drop-shadow(0 0 8px rgba(255, 127, 168, 0.18));
 }
 
 /* =========================
@@ -86,6 +94,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -94,89 +103,86 @@
 .animation {
   animation: client-fade-in 480ms ease-in-out forwards;
 }
+
+/* =========================
+   Flow Styles (Cinematic)
+   ========================= */
+
 .flow-path {
   fill: none;
-  stroke: rgba(200, 200, 220, 0.35);
-  stroke-width: 1.2;
-
-  stroke-dasharray: 6 6;
-  animation: flow-move 900ms linear infinite;
-
+  stroke-width: 1.5;
+  stroke-linecap: round;
   vector-effect: non-scaling-stroke;
+  transition: all 0.5s ease;
 }
 
-@keyframes flow-move {
-  to {
-    stroke-dashoffset: -12;
-  }
-}
-.backend-roles {
-  margin-top: 8px;
-  padding-left: 0;
-  list-style: none;
-
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(231, 231, 243, 0.72);
+/* Static Backbone (Gateway <-> Backend) */
+/* Designed to be subtle and structural, not traffic-like */
+.flow-static {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  animation: flow-static-move 6s linear infinite;
 }
 
-.backend-roles li {
-  position: relative;
-  padding-left: 12px;
-}
-
-.backend-roles li::before {
-  content: "•";
-  position: absolute;
-  left: 0;
-  color: rgba(231, 231, 243, 0.35);
-}
-.flow-path {
-  fill: none;
-  stroke-width: 1.6;
-  stroke-dasharray: 6 8;
-  animation: flow-move 1.6s linear infinite;
-}
-
+/* Client Requests (Client -> Gateway) */
+/* Smooth forward motion, blue-ish */
 .flow-forward {
-  stroke: rgba(120, 170, 255, 0.7); /* request */
+  stroke: rgba(100, 149, 237, 0.6);
+  /* CornflowerBlueish */
+  stroke-width: 1.5;
+  stroke-dasharray: 4 8;
+  animation: flow-move 1s linear infinite;
+  filter: drop-shadow(0 0 2px rgba(100, 149, 237, 0.3));
 }
 
-.flow-backward {
-  stroke: rgba(200, 200, 220, 0.55); /* response */
-  animation-direction: reverse;
+/* Accepted Response (Gateway -> Client) */
+/* Vibrant Green, Fast flow */
+.flow-accepted {
+  stroke: #4ade80;
+  stroke-width: 2.5;
+  stroke-dasharray: 12 12;
+  /* Longer dashes for emphasis */
+  animation: flow-move 0.8s linear infinite;
+  /* Fast! */
+  filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.6));
+  opacity: 0.9;
 }
 
-@keyframes flow-move {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -56;
-  }
-}
-/*  */
-.flow-path {
-  fill: none;
-  stroke-width: 1.4;
+/* Rejected Response (Gateway -> Client) */
+/* Red, Slower or broken feel */
+.flow-rejected {
+  stroke: #ef4444;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 6;
+  /* Dotted look */
   opacity: 0.6;
+  animation: flow-move 2s linear infinite;
 }
 
-.flow-forward {
-  stroke: rgba(180, 190, 255, 0.8);
-}
-
-.flow-backward {
-  stroke: rgba(160, 170, 200, 0.45);
-  stroke-dasharray: 4 4;
-}
-.flow-backward {
-  stroke-dasharray: 4 4;
-  animation: flow-back 1.2s linear infinite;
-}
-
-@keyframes flow-back {
+@keyframes flow-move {
   to {
-    stroke-dashoffset: -16;
+    stroke-dashoffset: -24;
+    /* negative moves forward along path definition */
   }
+}
+
+@keyframes flow-static-move {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.voucher-stats {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: rgba(231, 231, 243, 0.8);
+}
+
+.voucher-stats strong {
+  color: #fff;
+  margin-left: 6px;
 }

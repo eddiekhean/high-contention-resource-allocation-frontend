@@ -56,14 +56,39 @@ export function normalizeSimulation(data) {
  * @returns {ClientDecision[]}
  */
 export function normalizeClientDecisions(data) {
+  if (!data?.events?.ArrivalOrder || !data?.events?.events) {
+    console.warn("normalizeClientDecisions: Invalid data structure", data);
+    return [];
+  }
+
   const arrivals = data.events.ArrivalOrder;
   const rawEvents = data.events.events;
 
+  console.log("normalizeClientDecisions INPUT:", {
+    arrivalsCount: arrivals.length,
+    eventsCount: rawEvents.length
+  });
+
   // Map explicit backend decisions
   const decisionMap = new Map();
-  rawEvents.forEach((e) => {
-    decisionMap.set(e.ClientID, e);
-  });
+
+  rawEvents
+    .sort((a, b) => a.Tick - b.Tick)
+    .forEach((e) => {
+      // HANDLE CASING - Backend returns ClientID but we normalized to client_id in some places
+      const id = e.clientId || e.ClientID || e.client_id;
+      if (id === undefined) return;
+
+      // Force string key for safe lookup
+      const key = String(id);
+
+      // chỉ set nếu client chưa có decision
+      if (!decisionMap.has(key)) {
+        decisionMap.set(key, e);
+      }
+    });
+
+  console.log("normalizeClientDecisions MAP SIZE:", decisionMap.size);
 
   // Tick hết slot = allocation cuối
   const exhaustionTick = Math.max(
@@ -72,11 +97,19 @@ export function normalizeClientDecisions(data) {
   );
 
   return arrivals.map((a) => {
-    const explicit = decisionMap.get(a.client_id);
+    // Robust access to arrival ID
+    const aId = a.client_id ?? a.ClientID ?? a.clientId;
+    if (aId === undefined) {
+      console.warn("normalizeClientDecisions: Missing ID in arrival", a);
+      return null;
+    }
+
+    const key = String(aId);
+    const explicit = decisionMap.get(key);
 
     if (explicit) {
       return {
-        clientId: a.client_id,
+        clientId: aId,
         class: a.class,
         arrivedAtTick: a.first_tick,
         action: explicit.Action,
@@ -86,11 +119,11 @@ export function normalizeClientDecisions(data) {
 
     // FE suy ra reject vì hết slot
     return {
-      clientId: a.client_id,
+      clientId: aId,
       class: a.class,
       arrivedAtTick: a.first_tick,
       action: "rejected",
       decidedAtTick: Math.max(a.first_tick, exhaustionTick),
     };
-  });
+  }).filter(Boolean);
 }

@@ -13,5 +13,5 @@ export async function runSimulation(params) {
   }
 
   const raw = await res.json();
-  return normalizeSimulation(raw);
+  return raw;
 }
