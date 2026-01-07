@@ -4,6 +4,9 @@ import Home from "./pages/Home";
 import Simulation from "./pages/Simulation";
 import VoucherAllocationSimulation from "./components/simulation/VoucherAllocation";
 
+import LeetCode from "./pages/LeetCode";
+import SystemDesign from "./pages/SystemDesign";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -13,6 +16,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/simulation" element={<Simulation />} />
+            <Route path="/leetcode" element={<LeetCode />} />
+            <Route path="/system-design" element={<SystemDesign />} />
             <Route
               path="/simulations/voucher-allocation"
               element={<VoucherAllocationSimulation />}

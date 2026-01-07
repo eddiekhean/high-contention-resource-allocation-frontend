@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: center;
 }
+
 .home-hero {
   position: relative;
   overflow: hidden;
@@ -17,12 +18,10 @@
   height: 700px;
   border-radius: 50%;
 
-  background: radial-gradient(
-    circle,
-    #fad007 0%,
-    rgba(242, 234, 234, 0.05) 40%,
-    transparent 80%
-  );
+  background: radial-gradient(circle,
+      #fad007 0%,
+      rgba(242, 234, 234, 0.05) 40%,
+      transparent 80%);
 
   top: 50%;
   left: 50%;
@@ -76,6 +75,7 @@
   background: #f5f5f5;
   transform: translateY(-1px);
 }
+
 /* Home Content Section */
 .home-content {
   padding: 96px 24px;
@@ -137,6 +137,7 @@
     font-size: 36px;
   }
 }
+
 /* Scroll reveal base */
 .reveal {
   opacity: 0;
@@ -164,4 +165,203 @@
 
 .reveal.delay-3 {
   transition-delay: 0.4s;
+}
+
+/* ORBITAL SYSTEM LAYER */
+.orbital-system {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  /* Above background glow (0), below content (2) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  /* Slight system overlay feel */
+}
+
+/* 
+   Orbit System Generic Container 
+   This handles the vertical squash (perspective)
+*/
+.orbit-system {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 
+   Specific System Parameters 
+   Sizes are diameters.
+   Radii for planet positioning:
+   Sys 1: 900px -> r=450px
+   Sys 2: 1100px -> r=550px
+   Sys 3: 1300px -> r=650px
+*/
+
+/* System 1: Inner */
+.system-1 {
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, -50%) scaleY(0.75);
+  z-index: 1;
+}
+
+/* System 2: Middle */
+.system-2 {
+  width: 1100px;
+  height: 1100px;
+  transform: translate(-50%, -50%) scaleY(0.70);
+  z-index: 1;
+}
+
+/* System 3: Outer */
+.system-3 {
+  width: 1300px;
+  height: 1300px;
+  transform: translate(-50%, -50%) scaleY(0.65);
+  z-index: 1;
+}
+
+/* 
+   The actual ring that spins 
+*/
+.orbit-ring {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(250, 208, 7, 0.08);
+  border-radius: 50%;
+  will-change: transform;
+}
+
+/* Different speeds/directions per system */
+.system-1 .orbit-ring {
+  animation: orbit-rotate 24s linear infinite;
+  border-color: rgba(250, 208, 7, 0.1);
+  /* Slightly stronger inner */
+}
+
+.system-2 .orbit-ring {
+  animation: orbit-rotate 30s linear infinite reverse;
+  /* Counter-rotate middle */
+  border-color: rgba(250, 208, 7, 0.07);
+}
+
+.system-3 .orbit-ring {
+  animation: orbit-rotate 36s linear infinite;
+  border-color: rgba(250, 208, 7, 0.05);
+  /* Faintest outer */
+}
+
+
+/* 
+   Planets 
+   Generic positioning logic
+*/
+.planet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #fad007;
+  border-radius: 50%;
+}
+
+/* 
+   Planet Positions 
+   We need to handle the radius per system.
+   Using CSS variables would be cleanest, but let's be explicit for compatibility 
+   or just use specific selectors.
+   
+   Actually, since the container size defines the % reference, 
+   we can just use standard Translate Y in PIXELS? No, % is relative to element.
+   
+   If we use `translateY(-50%)` that refers to the element height.
+   
+   Best approach without variables for each radius:
+   The container has a fixed pixel width.
+   The radius is always 50% of the container width.
+   So `translateY(-50 containerWidth)`? No.
+   
+   Let's use `margin-top` or specific transforms per system.
+*/
+
+/* System 1 Planets (Radius 450px) */
+.system-1 .planet {
+  width: 3px;
+  height: 3px;
+  opacity: 0.9;
+}
+
+.system-1 .planet-1 {
+  transform: rotate(0deg) translateY(-450px) rotate(0deg);
+}
+
+.system-1 .planet-2 {
+  transform: rotate(120deg) translateY(-450px) rotate(-120deg);
+}
+
+.system-1 .planet-3 {
+  transform: rotate(240deg) translateY(-450px) rotate(-240deg);
+}
+
+/* System 2 Planets (Radius 550px) */
+.system-2 .planet {
+  width: 4px;
+  height: 4px;
+  opacity: 0.7;
+}
+
+.system-2 .planet-1 {
+  transform: rotate(0deg) translateY(-550px) rotate(0deg);
+}
+
+.system-2 .planet-2 {
+  transform: rotate(120deg) translateY(-550px) rotate(-120deg);
+}
+
+.system-2 .planet-3 {
+  transform: rotate(240deg) translateY(-550px) rotate(-240deg);
+}
+
+/* System 3 Planets (Radius 650px) */
+.system-3 .planet {
+  width: 2px;
+  height: 2px;
+  opacity: 0.5;
+}
+
+.system-3 .planet-1 {
+  transform: rotate(0deg) translateY(-650px) rotate(0deg);
+}
+
+.system-3 .planet-2 {
+  transform: rotate(120deg) translateY(-650px) rotate(-120deg);
+}
+
+.system-3 .planet-3 {
+  transform: rotate(240deg) translateY(-650px) rotate(-240deg);
+}
+
+
+@keyframes orbit-rotate {
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ensure content stays above */
+.home-hero__inner {
+  position: relative;
+  z-index: 2;
 }
