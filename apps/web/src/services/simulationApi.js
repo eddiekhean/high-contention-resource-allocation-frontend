@@ -1,3 +1,4 @@
+import { normalizeSimulation } from "./normalizeSimulation";
 export async function runSimulation(params) {
   const res = await fetch("http://54.206.179.188:8080/simulate", {
     method: "POST",
@@ -11,5 +12,6 @@ export async function runSimulation(params) {
     throw new Error("Simulation failed");
   }
 
-  return res.json();
+  const raw = await res.json();
+  return normalizeSimulation(raw);
 }

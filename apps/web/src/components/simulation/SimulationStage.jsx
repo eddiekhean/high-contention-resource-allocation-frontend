@@ -1,145 +1,279 @@
-import { useRef, useState, useEffect } from "react";
 import "./css/stage.css";
-import ServerPanel from "./ServerPanel";
+import "./css/box.css";
+import { useEffect, useRef, useState } from "react";
 
-export default function SimulationStage() {
-  const TOTAL_SLOTS = 8;
+export default function SimulationStage({ simulationData }) {
+  const arrivalList = simulationData?.arrivals ?? [];
+  const [clients, setClients] = useState([]);
+  const [gatewayCenter, setGatewayCenter] = useState(null);
+  const [backendCenter, setBackendCenter] = useState(null);
+  const TOTAL_VOUCHERS = simulationData?.totalVouchers ?? 10;
+  const [voucherSlots, setVoucherSlots] = useState(
+  Array.from({ length: TOTAL_VOUCHERS }, (_, i) => ({
+    id: i,
+    status: "available", // available | reserved | used
+  }))
+);
+  const cursorRef = useRef(0);
+  const stageRef = useRef(null);
+  const clientRef = useRef(null);
+  const gatewayRef = useRef(null);
+  const backendRef = useRef(null);
+  const CLIENT_TTL = 1000;
+  const SPAWN_INTERVAL = 2000; // thời gian giữa các batch
+  const CLEAN_INTERVAL = 500; // dọn client hết hạn
+  const MIN_BATCH = 1;
+  const MAX_BATCH = 5;
+  const CLIENT_SIZE = 24;
+  const PADDING = 16;
+  const TITLE_HEIGHT = 32;
+function consumeVoucher() {
+  setVoucherSlots((prev) => {
+    const idx = prev.findIndex((v) => v.status === "available");
+    if (idx === -1) return prev; // hết voucher → reject
 
-  const [spawnQueue, setSpawnQueue] = useState([]);
-  const [usedSlots, setUsedSlots] = useState(0);
-  const COLORS = {
-    free: "#3b82f6",
-    paid: "#22c55e",
-    vip: "#f59e0b",
-  };
+    const next = [...prev];
+    next[idx] = { ...next[idx], status: "used", pulse: true };
+    return next;
+  });
+}
 
-  // ===== REFS =====
-  const layoutRef = useRef(null); // hệ tọa độ chung
-  const clientStageRef = useRef(null); // nơi append client
-  const serverRef = useRef(null);
-  const isProcessingRef = useRef(false);
+  function spawnBatch(arrivalList, spawnArea, baseCursor, batchSize, now) {
+    setClients((prev) => {
+      const nextClients = [];
 
-  // ===== ARROW =====
-  function shootArrow(client, onDone) {
-    const layout = layoutRef.current;
-    const clientStage = clientStageRef.current;
-    const server = serverRef.current;
-    if (!layout || !clientStage || !server) return;
+      for (let i = 0; i < batchSize; i++) {
+        const idx = baseCursor + i;
+        if (idx >= arrivalList.length) break;
 
-    const svg = layout.querySelector(".arrow-layer");
-    if (!svg) return;
-    const layoutRect = layout.getBoundingClientRect();
-    const cRect = client.getBoundingClientRect();
-    const sRect = server.getBoundingClientRect();
+        const c = arrivalList[idx];
 
-    // START: client
-    const x1 = cRect.right - layoutRect.left;
-    const y1 = cRect.top - layoutRect.top + cRect.height / 2;
+        nextClients.push({
+          id: c.id,
+          type: c.type,
+          firstTick: c.tick,
+          order: idx,
+          spawnAt: now,
+          expiresAt: now + CLIENT_TTL,
+          x: spawnArea.x + Math.random() * (spawnArea.w - CLIENT_SIZE),
+          y: spawnArea.y + Math.random() * (spawnArea.h - CLIENT_SIZE),
+        });
+      }
 
-    // END: server
-    const x2 = sRect.left - layoutRect.left + sRect.width / 2;
-    const y2 = sRect.top - layoutRect.top + sRect.height / 2;
-
-    // CURVE
-    const cx1 = x1 + 80;
-    const cy1 = y1;
-    const cx2 = x2 - 80;
-    const cy2 = y2;
-
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-
-    path.setAttribute(
-      "d",
-      `M ${x1},${y1} C ${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`
-    );
-
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", "#ff9f1a");
-    path.setAttribute("stroke-width", "2");
-    path.setAttribute("stroke-linecap", "round");
-
-    svg.appendChild(path);
-
-    const len = path.getTotalLength();
-    path.style.strokeDasharray = len;
-    path.style.strokeDashoffset = len;
-
-    path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], {
-      duration: 600,
-      easing: "ease-out",
-      fill: "forwards",
+      return [...prev, ...nextClients];
     });
-
-    setTimeout(() => {
-      path.remove();
-      onDone?.();
-    }, 600);
   }
 
-  // ===== ENQUEUE =====
-  const spawnTestClient = (type) => {
-    setSpawnQueue((q) => [...q, { type }]);
+  useEffect(() => {
+    if (!stageRef.current || arrivalList.length === 0) return;
+
+    const stageRect = stageRef.current.getBoundingClientRect();
+
+    const getBox = (ref) => {
+      if (!ref.current) return null;
+      const r = ref.current.getBoundingClientRect();
+      return {
+        x: r.left - stageRect.left,
+        y: r.top - stageRect.top,
+        w: r.width,
+        h: r.height,
+      };
+    };
+
+    const clientsBox = getBox(clientRef);
+    if (!clientsBox) return;
+
+    const spawnArea = {
+      x: clientsBox.x + PADDING,
+      y: clientsBox.y + TITLE_HEIGHT + PADDING,
+      w: clientsBox.w - PADDING * 2,
+      h: clientsBox.h - TITLE_HEIGHT - PADDING * 2,
+    };
+
+    const spawnOnce = () => {
+      if (cursorRef.current >= arrivalList.length) return;
+
+      const batchSize =
+        Math.floor(Math.random() * (MAX_BATCH - MIN_BATCH + 1)) + MIN_BATCH;
+
+      const now = Date.now();
+      const baseCursor = cursorRef.current;
+
+      spawnBatch(arrivalList, spawnArea, baseCursor, batchSize, now);
+
+      cursorRef.current = Math.min(baseCursor + batchSize, arrivalList.length);
+    };
+    spawnOnce();
+
+    const timer = setInterval(spawnOnce, SPAWN_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [arrivalList]);
+  useEffect(() => {
+  if (!simulationData) return;
+
+  console.log("=== simulationData ===");
+  console.log(simulationData);
+  console.log("arrivals:", simulationData?.arrivals);
+}, [simulationData]);
+
+  useEffect(() => {
+    const cleaner = setInterval(() => {
+      const now = Date.now();
+      setClients((prev) => prev.filter((c) => c.expiresAt > now));
+    }, CLEAN_INTERVAL);
+
+    return () => clearInterval(cleaner);
+  }, []);
+
+  useEffect(() => {
+    if (!stageRef.current || !gatewayRef.current) return;
+
+    const stageRect = stageRef.current.getBoundingClientRect();
+    const g = gatewayRef.current.getBoundingClientRect();
+
+    setGatewayCenter({
+      x: g.left - stageRect.left + g.width / 2,
+      y: g.top - stageRect.top + g.height / 2,
+    });
+  }, [clients.length]);
+  function buildCurvePath(x1, y1, x2, y2, offsetX = 0) {
+  const mx = (x1 + x2) / 2 + offsetX;
+  const my = (y1 + y2) / 2;
+
+  return `M ${x1} ${y1}
+          Q ${mx} ${my}
+            ${x2} ${y2}`;
+}
+
+
+  useEffect(() => {
+  if (!stageRef.current || !gatewayRef.current || !backendRef.current) return;
+
+  const stageRect = stageRef.current.getBoundingClientRect();
+
+  const centerOf = (ref) => {
+    const r = ref.current.getBoundingClientRect();
+    return {
+      x: r.left - stageRect.left + r.width / 2,
+      y: r.top - stageRect.top + r.height / 2,
+    };
   };
 
-  // ===== PROCESS QUEUE =====
-  useEffect(() => {
-    if (spawnQueue.length === 0) return;
-    if (isProcessingRef.current) return;
-    if (usedSlots >= TOTAL_SLOTS) return;
+  setGatewayCenter(centerOf(gatewayRef));
+  setBackendCenter(centerOf(backendRef));
+}, []);
 
-    isProcessingRef.current = true;
-
-    const { type } = spawnQueue[0];
-    const stage = clientStageRef.current;
-    if (!stage) return;
-
-    const client = document.createElement("div");
-    client.className = `client ${type}`;
-    client.textContent = type.toUpperCase();
-
-    const stageRect = stage.getBoundingClientRect();
-
-    const x = Math.random() * (stageRect.width - 60);
-    const y = Math.random() * (stageRect.height - 40);
-
-    client.style.left = `${x}px`;
-    client.style.top = `${y}px`;
-
-    stage.appendChild(client);
-
-    shootArrow(client, () => {
-      setUsedSlots((v) => Math.min(v + 1, TOTAL_SLOTS));
-      client.remove();
-      setSpawnQueue((q) => q.slice(1));
-      isProcessingRef.current = false;
-    });
-  }, [spawnQueue, usedSlots]);
-
-  // ===== JSX =====
   return (
-    <div className="m2 simulation-card simulation-stage">
-      <div className="card-content simulation-layout" ref={layoutRef}>
-        <svg className="arrow-layer" />
+    <div ref={stageRef} className="simulation-stage">
+      <svg className="links-layer">
+  <defs>
+    <marker
+      id="arrow"
+      markerWidth="8"
+      markerHeight="8"
+      refX="7"
+      refY="4"
+      orient="auto"
+    >
+      <path d="M0,0 L8,4 L0,8 Z" fill="rgba(200,200,220,0.6)" />
+    </marker>
+  </defs>
 
-        <div className="sim-left">
-          <h3 className="sim-title">Clients</h3>
-          <div className="client-stage" ref={clientStageRef} />
-          <div className="controls">
-            <button onClick={() => spawnTestClient("free")}>Free</button>
-            <button onClick={() => spawnTestClient("paid")}>Paid</button>
-            <button onClick={() => spawnTestClient("vip")}>VIP</button>
-          </div>
-        </div>
+  {/* ===== GATEWAY ↔ BACKEND FLOWS (STATIC) ===== */}
+  {gatewayCenter && backendCenter && (
+  <>
+    {/* Gateway → Backend (request) */}
+    <path
+      d={buildCurvePath(
+        gatewayCenter.x,
+        gatewayCenter.y,
+        backendCenter.x,
+        backendCenter.y,
+        -32 // lệch trái
+      )}
+      className="flow-path flow-forward"
+    />
 
-        <div className="sim-right">
-          <h3 className="sim-title">Server</h3>
-          <ServerPanel
-            ref={serverRef}
-            totalSlots={TOTAL_SLOTS}
-            usedSlots={usedSlots}
-          />
-        </div>
+    {/* Backend → Gateway (response) */}
+    <path
+      d={buildCurvePath(
+        backendCenter.x,
+        backendCenter.y,
+        gatewayCenter.x,
+        gatewayCenter.y,
+        32 // lệch phải
+      )}
+      className="flow-path flow-backward"
+    />
+  </>
+)}
+
+  {/* ===== CLIENT → GATEWAY FLOWS ===== */}
+  {/* ===== CLIENT ↔ GATEWAY FLOWS ===== */}
+{gatewayCenter &&
+  clients.map((c) => {
+    const cx = c.x;
+    const cy = c.y;
+    const gx = gatewayCenter.x;
+    const gy = gatewayCenter.y;
+
+    // Request: Client → Gateway (lệch trái)
+    const requestPath = buildCurvePath(cx, cy, gx, gy, -20);
+
+    // Response: Gateway → Client (lệch phải)
+    const responsePath = buildCurvePath(gx, gy, cx, cy, 20);
+
+    return (
+      <g key={c.id}>
+        {/* Request */}
+        <path
+          d={requestPath}
+          className="flow-path flow-forward"
+          markerEnd="url(#arrow)"
+        />
+
+        {/* Response */}
+        <path
+          d={responsePath}
+          className="flow-path flow-backward"
+          markerEnd="url(#arrow)"
+        />
+
+        {/* Client node */}
+        <g
+          transform={`translate(${cx}, ${cy})`}
+          className={`client-node ${c.type} animation`}
+        >
+          <circle cx="0" cy="0" r="20" />
+          <text y="4" textAnchor="middle">
+            {c.id}
+          </text>
+        </g>
+      </g>
+    );
+  })}
+</svg>
+
+      <div ref={clientRef} className="box clients">
+        <div className="title">Clients</div>
       </div>
+      <div ref={gatewayRef} className="box gateway">
+        <div className="title">API Gateway</div>
+        <p>Ingress</p>
+        <p>Rate Limiting</p>
+      </div>
+      <div ref={backendRef} className="box backend">
+  <div className="title">Backend</div>
+
+  <ul className="backend-roles">
+    <li>Request scheduling</li>
+    <li>Priority-based admission</li>
+    <li>Limited resource allocation</li>
+  </ul>
+</div>
+
+
     </div>
   );
 }

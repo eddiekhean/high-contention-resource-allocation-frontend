@@ -1,0 +1,371 @@
+.box {
+  position: relative;
+  box-sizing: border-box;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: rgba(20, 20, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e7e7f3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Parent stage: stack boxes vertically, control spacing here */
+.simulation-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* keep boxes horizontally centered */
+  gap: 40px; /* fixed vertical spacing between boxes (pixels) */
+  width: 100%;
+}
+
+/* Clients */
+.box.clients {
+  margin-top: 24px;
+  width: 92%;
+  max-width: 1200px;
+  min-height: 250px;
+  overflow: hidden;
+
+  /* Surface & material */
+  background-color: rgba(12, 14, 24, 0.86);
+  backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(0, 0, 0, 0.24);
+  border-radius: 12px;
+
+  /* Depth */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 14px 28px -8px rgba(3, 6, 15, 0.7);
+
+  /* Layered highlights for subtle sheen */
+  background-image:
+    radial-gradient(
+      800px circle at 50% -120px,
+      rgba(255, 255, 255, 0.032),
+      transparent 36%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 60%);
+
+  transform-style: preserve-3d;
+  z-index: 1;
+}
+
+/* Ensure pseudo-elements are positioned relative to the box */
+.box.clients::before,
+.box.clients::after {
+  position: absolute;
+}
+
+/* Gentle sweeping sheen for life without distraction */
+.box.clients::before {
+  content: "";
+
+  top: -30%;
+  left: -40%;
+  width: 60%;
+  height: 160%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0) 40%
+  );
+  filter: blur(10px);
+  opacity: 0.6;
+  transform: rotate(-18deg);
+  pointer-events: none;
+  animation: clients-sheen 7s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* Soft grounding glow at the bottom */
+.box.clients::after {
+  content: "";
+
+  left: 8%;
+  right: 8%;
+  bottom: -6px;
+  height: 18px;
+  background: radial-gradient(
+    50% 40% at 50% 0%,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0)
+  );
+  pointer-events: none;
+  opacity: 0.9;
+  border-radius: 50%;
+}
+
+/* Spawn layer: faint inset guide for simulation items */
+.box.clients .spawn-layer {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  border-radius: 8px;
+  z-index: 1;
+
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.012),
+    transparent
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    inset 0 -6px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Sheen animation */
+@keyframes clients-sheen {
+  0% {
+    transform: translateX(-120%) rotate(-18deg);
+    opacity: 0.5;
+  }
+  45% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(180%) rotate(-18deg);
+    opacity: 0.5;
+  }
+}
+
+.box.gateway {
+  width: 42%;
+  min-height: 120px;
+  overflow: hidden;
+
+  /* Subtle, deep surface with soft spotlight */
+  background-color: rgba(12, 14, 24, 0.86);
+  backdrop-filter: blur(12px) saturate(120%);
+
+  /* Crisp but gentle outline */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom-color: rgba(0, 0, 0, 0.36);
+  border-radius: 12px;
+
+  /* Denser shadow to suggest a physical device */
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.02),
+    0 18px 36px -12px rgba(3, 6, 15, 0.7);
+
+  /* Layered highlights for depth */
+  background-image:
+    radial-gradient(
+      600px circle at 50% -60px,
+      rgba(255, 255, 255, 0.035),
+      transparent 40%
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 60%);
+
+  z-index: 2;
+  transform-style: preserve-3d;
+}
+
+/* Ensure pseudo-elements are positioned relative to the box */
+.box.gateway::before,
+.box.gateway::after {
+  position: absolute;
+}
+
+/* Animated sheen to add life without distraction */
+.box.gateway::before {
+  content: "";
+  top: -40%;
+  left: -30%;
+  width: 60%;
+  height: 180%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0) 40%
+  );
+  filter: blur(12px);
+  opacity: 0.7;
+  transform: rotate(-20deg);
+  pointer-events: none;
+  animation: gateway-sheen 6s linear infinite;
+}
+
+/* Refined internal "port" line with slight glow */
+.box.gateway::after {
+  content: "";
+  top: 50%;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0)
+  );
+  opacity: 0.45;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 6px rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+/* Sheen animation keyframes */
+@keyframes gateway-sheen {
+  0% {
+    transform: translateX(-100%) rotate(-20deg);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(200%) rotate(-20deg);
+    opacity: 0.6;
+  }
+}
+
+.box.backend {
+  /* --- Layout (align with simulation stage) --- */
+  width: 100%;
+  min-height: 180px;
+  overflow: hidden;
+
+  /* --- Surface: same family as clients, slightly denser --- */
+  background-color: rgba(16, 18, 28, 0.9);
+  backdrop-filter: blur(12px) saturate(120%);
+
+  /* --- Micro-contrast border (stable, grounded) --- */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.05);
+  border-bottom-color: rgba(0, 0, 0, 0.35);
+
+  border-radius: 6px;
+
+  /* --- Depth: heavier than clients, less “lift” --- */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 8px 18px -6px rgba(0, 0, 0, 0.7);
+
+  /* --- Lighting: calmer, flatter than clients --- */
+  background-image:
+    radial-gradient(
+      700px 200px at 50% -120px,
+      rgba(255, 255, 255, 0.025),
+      transparent 45%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 80%);
+
+  transform: translateZ(0);
+}
+
+/* Optional: backend processing zone */
+.box.backend {
+  width: 92%;
+  max-width: 1200px;
+  min-height: 180px;
+  overflow: hidden;
+
+  /* Surface & material */
+  background-color: rgba(12, 14, 24, 0.86);
+  backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(0, 0, 0, 0.24);
+  border-radius: 12px;
+
+  /* Depth */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 14px 28px -8px rgba(3, 6, 15, 0.7);
+
+  /* Layered highlights for subtle sheen */
+  background-image:
+    radial-gradient(
+      800px circle at 50% -120px,
+      rgba(255, 255, 255, 0.032),
+      transparent 36%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 60%);
+
+  transform-style: preserve-3d;
+  z-index: 1;
+}
+
+/* Ensure pseudo-elements are positioned relative to the box */
+.box.backend::before,
+.box.backend::after {
+  position: absolute;
+}
+
+/* Gentle sweeping sheen for life without distraction */
+.box.backend::before {
+  content: "";
+  top: -30%;
+  left: -40%;
+  width: 60%;
+  height: 160%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0) 40%
+  );
+  filter: blur(10px);
+  opacity: 0.6;
+  transform: rotate(-18deg);
+  pointer-events: none;
+  animation: backend-sheen 7s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* Soft grounding glow at the bottom */
+.box.backend::after {
+  content: "";
+  left: 8%;
+  right: 8%;
+  bottom: -6px;
+  height: 18px;
+  background: radial-gradient(
+    50% 40% at 50% 0%,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0)
+  );
+  pointer-events: none;
+  opacity: 0.9;
+  border-radius: 50%;
+}
+
+/* Processing layer */
+.box.backend .spawn-layer {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  border-radius: 8px;
+  z-index: 1;
+
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.012),
+    transparent
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    inset 0 -6px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Sheen animation */
+@keyframes backend-sheen {
+  0% {
+    transform: translateX(-120%) rotate(-18deg);
+    opacity: 0.5;
+  }
+  45% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(180%) rotate(-18deg);
+    opacity: 0.5;
+  }
+}
