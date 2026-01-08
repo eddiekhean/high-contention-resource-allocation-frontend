@@ -1,4 +1,4 @@
-import "./css/content.css";
+import "../../styles/shared-content.css";
 import OrbitalBackground from "../common/OrbitalBackground";
 import { Link } from "react-router-dom";
 import useReveal from "../../hooks/useReveal";
@@ -9,7 +9,7 @@ export default function LeetCodeContent() {
     const listRef = useReveal();
 
     return (
-        <main className="leetcode-page leetcode-index">
+        <main className="app-stage app-container">
             <OrbitalBackground />
             <section ref={introRef} className="intro reveal">
                 <h1>LeetCode Journey</h1>
@@ -44,14 +44,14 @@ export default function LeetCodeContent() {
                 </p>
             </section>
 
-            <section ref={listRef} className="leetcode-list reveal">
+            <section ref={listRef} className="nav-list reveal">
                 <h2>Problem Sets</h2>
 
                 <ul>
                     <li>
                         <Link
                             to="/leetcode/arrays-and-hashing"
-                            className="leetcode-link"
+                            className="nav-card"
                         >
                             <div className="item-header">
                                 <span className="name">
@@ -67,7 +67,7 @@ export default function LeetCodeContent() {
                     <li>
                         <Link
                             to="/leetcode/two-pointers"
-                            className="leetcode-link"
+                            className="nav-card"
                         >
                             <div className="item-header">
                                 <span className="name">
@@ -81,7 +81,7 @@ export default function LeetCodeContent() {
                     </li>
 
                     <li className="soon">
-                        <div className="leetcode-link disabled">
+                        <div className="nav-card disabled">
                             <div className="item-header">
                                 <span className="name">
                                     Graphs & Search Strategies

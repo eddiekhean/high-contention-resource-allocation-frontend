@@ -1,4 +1,5 @@
-import "./css/simulation.css";
+import "../../styles/shared-content.css";
+import OrbitalBackground from "../common/OrbitalBackground";
 import { Link } from "react-router-dom";
 import useReveal from "../../hooks/useReveal";
 import { useRevealOnMount } from "../../hooks/useRevealOnMount";
@@ -7,7 +8,8 @@ export default function SimulationContent() {
   const listRef = useReveal();
 
   return (
-    <main className="simulation-page simulation-index">
+    <main className="app-stage app-container">
+      <OrbitalBackground />
       <section ref={introRef} className="intro reveal">
         <h1>Learning Journey</h1>
 
@@ -39,14 +41,14 @@ export default function SimulationContent() {
         </p>
       </section>
 
-      <section ref={listRef} className="simulation-list reveal">
+      <section ref={listRef} className="nav-list reveal">
         <h2>Simulations</h2>
 
         <ul>
           <li>
             <Link
               to="/simulations/voucher-allocation"
-              className="simulation-link"
+              className="nav-card"
             >
               <div className="item-header">
                 <span className="name">
