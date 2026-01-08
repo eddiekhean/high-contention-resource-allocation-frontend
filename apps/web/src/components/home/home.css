@@ -19,7 +19,7 @@
   border-radius: 50%;
 
   background: radial-gradient(circle,
-      #fad007 0%,
+      rgba(250, 208, 7, 0.35) 0%,
       rgba(242, 234, 234, 0.05) 40%,
       transparent 80%);
 
@@ -76,11 +76,23 @@
   transform: translateY(-1px);
 }
 
+/* Fullpage wrapper for Hero + Content */
+.home-fullpage-wrapper {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
 /* Home Content Section */
 .home-content {
   padding: 96px 24px;
   background: transparent;
   color: #e6e6eb;
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  /* Subtle separator */
 }
 
 /* Grid layout */

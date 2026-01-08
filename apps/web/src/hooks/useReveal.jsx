@@ -1,26 +1,23 @@
 import { useEffect, useRef } from "react";
 
-export default function useReveal() {
+export default function useReveal(isActive = false) {
   const ref = useRef(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("is-visible");
-          observer.unobserve(el); // Stop observing after revealing
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, []);
+    if (isActive) {
+      // Small delay to ensure render cycle complete or just purely declarative
+      // Adding a tiny timeout can help animations play smoothly on mount
+      const timer = setTimeout(() => {
+        el.classList.add("is-visible");
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      el.classList.remove("is-visible");
+    }
+  }, [isActive]);
 
   return ref;
 }
