@@ -7,291 +7,318 @@
   margin: 0 auto;
   padding: 96px 24px 160px;
   color: #e5e5e5;
+  position: relative;
+  z-index: 1;
+  /* Ensure above orbital background */
 }
 
 /* =====================================================
    SECTION LAYOUT
    ===================================================== */
 
-/* tất cả section đều center + spacing rõ */
+/* Center alignment for sections unless specified otherwise */
 .voucher-allocation-simulation .section {
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-/* khoảng cách giữa các section */
-.voucher-allocation-simulation .section + .section {
-  margin-top: 56px;
+/* Spacing between sections */
+.voucher-allocation-simulation .section+.section {
+  margin-top: 80px;
 }
 
 /* =====================================================
    HERO
    ===================================================== */
 
-.section-hero {
-  max-width: none;
-  margin-top: 0;
+.section.hero {
+  text-align: center;
+  max-width: 800px;
+  margin-bottom: 64px;
 }
 
-.section-hero h1 {
-  font-size: 40px;
-  font-weight: 650;
+.section.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: #f0f0f0;
-  margin-bottom: 20px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #fff 0%, #a5a5b5 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.section-hero .lead {
-  font-size: 17px;
-  line-height: 1.75;
-  color: #cfcfcf;
+.section.hero .subtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #8da4ef;
+  /* Light blueish accent */
+  font-weight: 500;
+  margin-bottom: 32px;
+}
+
+.section.hero .intro {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #c4c4d4;
   max-width: 720px;
+  margin: 0 auto;
 }
 
 /* =====================================================
-   HEADINGS
+   HEADINGS & TYPOGRAPHY
    ===================================================== */
 
 .section h2 {
-  font-size: 13px;
+  font-size: 1.75rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #9a9a9a;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.section p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #b8b8c2;
   margin-bottom: 16px;
 }
 
-/* =====================================================
-   PARAGRAPHS
-   ===================================================== */
-
-.section p {
-  font-size: 15px;
-  line-height: 1.7;
-  color: #c2c2c2;
-  margin-bottom: 12px;
+.bullet-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
 }
 
-/* =====================================================
-   FAILURE BOX
-   ===================================================== */
-
-.section-box {
+.bullet-list li {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 20px;
+  border-radius: 12px;
+  color: #e7e7f3;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+}
+
+.bullet-list li::before {
+  content: "•";
+  color: #6f8cff;
+  font-size: 1.5rem;
+  line-height: 0;
+  margin-right: 12px;
+}
+
+/* =====================================================
+   POLICY CARDS grid
+   ===================================================== */
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.policy-card {
+  background: rgba(20, 26, 42, 0.6);
+  border: 1px solid rgba(111, 140, 255, 0.15);
   border-radius: 16px;
-  padding: 36px 40px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
-.section-box h2 {
-  margin-bottom: 14px;
+.policy-card:hover {
+  background: rgba(20, 26, 42, 0.8);
+  border-color: rgba(111, 140, 255, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4);
 }
 
-.failure-list {
+.policy-card h3 {
+  font-size: 1.25rem;
+  color: #fff;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.policy-card ul {
+  list-style: none;
+  padding: 0;
   margin-top: 16px;
-  padding-left: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 16px;
 }
 
-.failure-list li {
-  font-size: 15px;
-  line-height: 1.6;
-  color: #d0d0d0;
-  margin-bottom: 10px;
-}
-
-/* =====================================================
-   DIVIDER SECTION
-   ===================================================== */
-
-.section-divider {
-  padding-top: 40px;
-  border-top: 1px solid #1f1f1f;
-}
-
-/* =====================================================
-   MUTED TEXT
-   ===================================================== */
-
-.muted {
-  margin-top: 20px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #8a8a8a;
-}
-
-/* =====================================================
-   SIMULATION CARD (m2 OVERRIDE)
-   ===================================================== */
-
-.simulation-card.m2 {
+.policy-card li {
+  font-size: 0.9rem;
+  color: #aeb5c5;
+  margin-bottom: 8px;
+  padding-left: 14px;
   position: relative;
-  width: 100%;
-  height: auto;
-  display: block;
-  padding: 2px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #1e1e24 10%, #0b0b0f 60%, #050505 100%);
-  background-size: 200% 200%;
-  animation: gradient-shift 5s ease-in-out infinite;
-  user-select: none;
-
-  isolation: isolate;
 }
 
-.simulation-card.m2::before,
-.simulation-card.m2::after {
+.policy-card li::before {
   content: "";
   position: absolute;
-  inset: -6px;
-  border-radius: 22px;
-  pointer-events: none;
-}
-.m2::after {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  background: radial-gradient(circle, rgba(255, 140, 0, 0.35), transparent 60%);
-  filter: blur(30px);
-  z-index: -2;
-}
-.simulation-card.m2::after {
-  z-index: -1;
-  background:
-    radial-gradient(circle at 0 0, #ff9f43, transparent),
-    radial-gradient(circle at 100% 0, #00a6ff, transparent),
-    radial-gradient(circle at 0 100%, #ff0056, transparent),
-    radial-gradient(circle at 100% 100%, #6500ff, transparent);
+  left: 0;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  background: #6f8cff;
+  border-radius: 50%;
 }
 
-.simulation-card.m2::before {
-  z-index: -2;
-  filter: blur(24px);
-  background: inherit;
-  animation: blur-animation 3s ease-in-out alternate infinite;
+/* =====================================================
+   COMPARISON GRID
+   ===================================================== */
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
 }
 
-/* Faster blur animation */
-@keyframes blur-animation {
-  to {
-    filter: blur(3vmin);
-    transform: scale(1.05);
-  }
-}
-
-/* Faster gradient animation */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.simulation-card.m2::before,
-.simulation-card.m2::after {
-  border-radius: 20px;
-}
-
-/* inner content */
-.simulation-card .card-content {
-  background: rgba(10, 10, 14, 0.88);
+.comparison-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 36px 40px;
-  position: relative;
-  z-index: 1;
+  padding: 32px;
 }
 
-.simulation-card h2 {
-  margin-top: 0;
+.comparison-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: #e7e7f3;
 }
+
+.comparison-card ul {
+  padding-left: 20px;
+  margin-top: 16px;
+}
+
+.comparison-card li {
+  margin-bottom: 8px;
+  color: #a0a0b0;
+}
+
 
 /* =====================================================
-   FORM
+   SIMULATION PARAMETERS FORM
    ===================================================== */
+
+.simulation-card .card-content {
+  background: rgba(12, 14, 24, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+}
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
   margin-top: 24px;
 }
 
 label {
   display: flex;
   flex-direction: column;
-  font-size: 14px;
-  color: #cfcfcf;
+  font-size: 0.85rem;
+  color: #8da4ef;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 input,
 select {
-  margin-top: 6px;
-  padding: 8px 10px;
-  font-size: 14px;
-  background: #0d0d12;
-  border: 1px solid #222;
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  color: #eaeaea;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.2s;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: #3a3a3a;
+  border-color: #6f8cff;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(111, 140, 255, 0.2);
 }
 
-/* button */
 button {
-  margin-top: 28px;
-  padding: 10px 18px;
-  font-size: 14px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: #121218;
-  color: #eaeaea;
+  margin-top: 32px;
+  width: 100%;
+  padding: 16px;
+  background: #6f8cff;
+  color: #0b0b0f;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+button:hover:not(:disabled) {
+  background: #88a1ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(111, 140, 255, 0.4);
 }
 
 button:disabled {
-  opacity: 0.6;
+  background: #333;
+  color: #666;
   cursor: not-allowed;
 }
 
-/* =====================================================
-   RESULT BLOCK
-   ===================================================== */
-
-.simulation-card pre {
-  margin-top: 18px;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.45);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-x: auto;
+.error {
+  margin-top: 16px;
+  color: #ff6b6b;
+  font-weight: 500;
+  text-align: center;
 }
 
 /* =====================================================
-   REVEAL ANIMATION
+   TAKEAWAY
    ===================================================== */
 
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.8s ease,
-    transform 0.8s ease;
+.section.takeaway {
+  max-width: 720px;
+  text-align: center;
+  margin-top: 120px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+.section.takeaway h2 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: #fff;
 }
+
+.section.takeaway p {
+  font-size: 1.1rem;
+  color: #d1d1e0;
+}
+
 
 /* =====================================================
    RESPONSIVE
@@ -302,92 +329,31 @@ button:disabled {
     padding: 64px 20px 120px;
   }
 
-  .section-hero h1 {
-    font-size: 30px;
-  }
-
-  .form-grid {
+  .comparison-grid {
     grid-template-columns: 1fr;
   }
+
+  .section.hero h1 {
+    font-size: 2.5rem;
+  }
 }
+
+/* =====================================================
+   INDEX PAGE STYLES (Keep existing but refined)
+   ===================================================== */
 .simulation-index .intro {
-  max-width: 720px;
-  margin: 0 auto;
+  margin-bottom: 60px;
+  text-align: center;
 }
 
 .simulation-index h1 {
-  font-size: 36px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 3rem;
+  background: linear-gradient(135deg, #fff 0%, #a5a5b5 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.simulation-index .lead {
-  font-size: 17px;
-  line-height: 1.8;
-  color: #cfcfcf;
-  margin-bottom: 24px;
-}
-
-.simulation-index p {
-  font-size: 15px;
-  line-height: 1.7;
-  color: #bdbdbd;
-  margin-bottom: 14px;
-}
-
-.simulation-index .simulation-list {
-  max-width: 720px;
-  margin: 72px auto 0;
-}
-
-.simulation-index h2 {
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #9a9a9a;
-  margin-bottom: 18px;
-}
-
-.simulation-index ul {
-  list-style: none;
-  padding: 0;
-}
-
-.simulation-index li {
-  padding: 16px 0;
-  border-bottom: 1px solid #1f1f1f;
-}
-
-.simulation-link {
-  text-decoration: none;
-  color: inherit;
-}
-
-.simulation-index .name {
-  font-size: 15px;
-  color: #ffffff;
-}
-
-.simulation-index .meta {
-  font-size: 12px;
-  color: #8a8a8a;
-}
-
-@keyframes blur-animation {
-  to {
-    filter: blur(3vmin);
-    transform: scale(1.05);
-  }
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.simulation-table-container {
+  margin-top: 40px;
 }
