@@ -8,7 +8,11 @@ body {
   background: #07070a;
   min-height: 100vh;
 }
+
 .app {
   min-height: 100vh;
   background: #07070a;
+  scroll-snap-type: y proximity;
+  overflow-y: scroll;
+  height: 100vh;
 }
