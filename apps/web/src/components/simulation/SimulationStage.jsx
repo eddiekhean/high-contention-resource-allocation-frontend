@@ -114,6 +114,29 @@ export default function SimulationStage({
 
     setGatewayCenter(centerOf(gatewayRef));
     setBackendCenter(centerOf(backendRef));
+
+    // Handle Resize
+    const handleResize = () => {
+      if (!stageRef.current || !gatewayRef.current || !backendRef.current) return;
+
+      const newStageRect = stageRef.current.getBoundingClientRect();
+      const centerOfResize = (ref) => {
+        const r = ref.current.getBoundingClientRect();
+        return {
+          x: r.left - newStageRect.left + r.width / 2,
+          y: r.top - newStageRect.top + r.height / 2,
+        };
+      };
+
+      setGatewayCenter(centerOfResize(gatewayRef));
+      setBackendCenter(centerOfResize(backendRef));
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   // Recalculate gateway center if it moves (unlikely but safe)

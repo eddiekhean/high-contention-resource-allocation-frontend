@@ -186,3 +186,9 @@
   color: #fff;
   margin-left: 6px;
 }
+
+@media (max-width: 768px) {
+  .simulation-stage {
+    min-height: 600px;
+  }
+}

@@ -21,7 +21,7 @@
    ========================= */
 
 .intro {
-    max-width: 720px;
+    max-width: 100%;
     margin-bottom: 80px;
     text-align: center;
     /* Add a subtle animation/reveal if needed via JS class, but basic styles here */
