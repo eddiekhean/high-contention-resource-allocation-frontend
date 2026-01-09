@@ -137,13 +137,16 @@
 /* Responsive */
 @media (max-width: 768px) {
   .home-content {
-    padding: 60px 20px;
-    height: 100%;
+    padding: 100px 24px 60px;
+    /* More top padding for Dynamic Island */
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    /* Better for long scrollable content */
     overflow-y: auto;
-    /* Safety for very long content on small height screens */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth iOS scroll */
   }
 
   .home-content__grid {

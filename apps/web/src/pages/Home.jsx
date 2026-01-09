@@ -13,11 +13,31 @@ export default function Home() {
   useEffect(() => {
     const touchStartPos = { y: 0 };
 
+    const canChangeSection = (direction) => {
+      // If we're on the hero, we can always change section
+      if (activeSectionIndex === 0) return true;
+
+      // Find the currently active scrollable content section
+      const content = document.querySelector(".home-content");
+      if (!content) return true;
+
+      const { scrollTop, scrollHeight, clientHeight } = content;
+      const isAtTop = scrollTop <= 0;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1; // 1px buffer
+
+      if (direction > 0 && isAtBottom) return true; // Scrolling down at bottom
+      if (direction < 0 && isAtTop) return true;    // Scrolling up at top
+
+      return false; // Stay inside if we can scroll internally
+    };
+
     const handleWheel = (e) => {
       if (isThrottling.current) return;
-      e.preventDefault();
       const direction = e.deltaY > 0 ? 1 : -1;
-      changeSection(direction);
+      if (canChangeSection(direction)) {
+        e.preventDefault();
+        changeSection(direction);
+      }
     };
 
     const handleTouchStart = (e) => {
@@ -32,7 +52,9 @@ export default function Home() {
 
       if (Math.abs(diff) > touchEndScale) {
         const direction = diff > 0 ? 1 : -1;
-        changeSection(direction);
+        if (canChangeSection(direction)) {
+          changeSection(direction);
+        }
       }
     };
 

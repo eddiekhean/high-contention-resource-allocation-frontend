@@ -36,6 +36,10 @@
   justify-content: space-between;
 }
 
+.control-center-panel {
+  display: none;
+}
+
 /* DESKTOP STYLES */
 .island-left {
   flex: 1;
@@ -135,26 +139,30 @@
 
 /* MOBILE (DYNAMIC ISLAND) */
 @media (max-width: 768px) {
+  :root {
+    --header-height: 80px;
+    /* Reduced to bring content up */
+  }
+
   .header-container {
     background: transparent !important;
     pointer-events: none;
-    height: 80px;
-    /* More space for island */
+    height: var(--header-height);
   }
 
   .header-island {
     pointer-events: auto;
     position: absolute;
-    top: 12px;
+    top: 16px;
     left: 50%;
     transform: translateX(-50%);
-    width: 72px;
-    /* Compact width */
-    height: 36px;
-    /* Compact height */
+    width: 100px;
+    /* Larger compact width */
+    height: 44px;
+    /* Larger compact height */
     padding: 0;
     background: #000;
-    border-radius: 20px;
+    border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -176,25 +184,67 @@
 
   .header-island.is-expanded {
     width: var(--island-expanded-width);
-    height: 56px;
-    border-radius: 30px;
-    top: 16px;
-    padding: 0 16px;
+    height: 72px;
+    border-radius: 36px;
+    top: 12px;
+    padding: 0 24px;
     background: var(--island-bg);
+  }
+
+  .header-island.is-cc-open {
+    width: min(94vw, 400px);
+    /* Slightly wider */
+    height: auto;
+    /* Let content dictate height */
+    min-height: 280px;
+    /* Further reduced for nav only */
+    max-height: 90vh;
+    /* Don't overflow screen */
+    border-radius: 54px;
+    top: 12px;
+    padding: 24px;
+    background: rgba(15, 15, 20, 0.98);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    /* Scroll if content is too large */
   }
 
   .island-content {
     height: 100%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    transition-delay: 0.1s;
+    opacity: 1;
+    display: flex;
+    align-items: center;
     justify-content: center;
     /* Center logo in compact mode */
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   }
 
   .is-expanded .island-content {
-    opacity: 1;
     justify-content: space-between;
+  }
+
+  /* Disable all links inside island when collapsed so click expands instead */
+  .logo-link,
+  .github-btn {
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .is-expanded .logo-link,
+  .is-expanded .github-btn {
+    pointer-events: auto;
+  }
+
+  .github-btn {
+    opacity: 0;
+    /* Hide github btn when compact */
+  }
+
+  .is-expanded .github-btn {
+    opacity: 1;
   }
 
   /* Island Nav is hidden on mobile island */
@@ -212,27 +262,29 @@
 
   .is-expanded .logo-text {
     display: block !important;
-    font-size: 15px;
+    font-size: 18px;
+    /* Bigger font */
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 140px;
-    margin-left: 10px;
+    max-width: 160px;
+    margin-left: 12px;
   }
 
   .island-left {
     flex: none;
+    cursor: pointer;
   }
 
   .logo-image {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 
   .is-expanded .logo-image {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
   }
 
   .island-right {
@@ -240,16 +292,109 @@
   }
 
   .github-btn {
-    padding: 8px;
+    padding: 12px;
   }
 
   .github-icon {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
   }
 
-  /* Island Nav on expanded mobile is likely too big, 
-     but requirements say reveal title + github icon. 
-     If we want links, we need a small row or hide. 
-     Requirements: "Reveal: Logo, Title text, GitHub button or icon" */
+  /* CONTROL CENTER PANEL */
+  .control-center-panel {
+    width: 100%;
+    margin-top: 24px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .is-cc-open .control-center-panel {
+    display: block;
+    opacity: 1;
+  }
+
+  /* NEW Nav Grid in CC */
+  .cc-nav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .cc-nav-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 28px;
+    /* More rounded like iOS */
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cc-nav-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
+    pointer-events: none;
+  }
+
+  .cc-nav-card .emoji {
+    font-size: 32px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+    transition: transform 0.3s ease;
+  }
+
+  /* Specific Themes */
+  .cc-home {
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.2), rgba(0, 122, 255, 0.05));
+    border-color: rgba(0, 122, 255, 0.2);
+  }
+
+  .cc-simulation {
+    background: linear-gradient(135deg, rgba(255, 59, 48, 0.2), rgba(255, 59, 48, 0.05));
+    border-color: rgba(255, 59, 48, 0.2);
+  }
+
+  .cc-leetcode {
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.2), rgba(52, 199, 89, 0.05));
+    border-color: rgba(52, 199, 89, 0.2);
+  }
+
+  .cc-sysdesign {
+    background: linear-gradient(135deg, rgba(175, 82, 222, 0.2), rgba(175, 82, 222, 0.05));
+    border-color: rgba(175, 82, 222, 0.2);
+  }
+
+  .cc-nav-card:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  .cc-nav-card:active .emoji {
+    transform: scale(1.1);
+  }
+
+  .emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }

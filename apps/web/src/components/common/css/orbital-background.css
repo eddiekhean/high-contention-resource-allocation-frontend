@@ -144,3 +144,74 @@
         transform: rotate(360deg);
     }
 }
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+    .system-1 {
+        width: 320px;
+        height: 320px;
+    }
+
+    .system-2 {
+        width: 440px;
+        height: 440px;
+    }
+
+    .system-3 {
+        width: 580px;
+        height: 580px;
+    }
+
+    /* Recalculate planet radii (half of diameter) */
+    .system-1 .planet-1 {
+        transform: rotate(0deg) translateY(-160px) rotate(0deg);
+    }
+
+    .system-1 .planet-2 {
+        transform: rotate(120deg) translateY(-160px) rotate(-120deg);
+    }
+
+    .system-1 .planet-3 {
+        transform: rotate(240deg) translateY(-160px) rotate(-240deg);
+    }
+
+    .system-2 .planet-1 {
+        transform: rotate(0deg) translateY(-220px) rotate(0deg);
+    }
+
+    .system-2 .planet-2 {
+        transform: rotate(120deg) translateY(-220px) rotate(-120deg);
+    }
+
+    .system-2 .planet-3 {
+        transform: rotate(240deg) translateY(-220px) rotate(-240deg);
+    }
+
+    .system-3 .planet-1 {
+        transform: rotate(0deg) translateY(-290px) rotate(0deg);
+    }
+
+    .system-3 .planet-2 {
+        transform: rotate(120deg) translateY(-290px) rotate(-290deg);
+    }
+
+    .system-3 .planet-3 {
+        transform: rotate(240deg) translateY(-290px) rotate(-240deg);
+    }
+
+    /* Make planets slightly smaller on mobile */
+    .system-1 .planet {
+        width: 8px;
+        height: 8px;
+    }
+
+    .system-2 .planet {
+        width: 6px;
+        height: 6px;
+    }
+
+    .system-3 .planet {
+        width: 12px;
+        height: 12px;
+    }
+}

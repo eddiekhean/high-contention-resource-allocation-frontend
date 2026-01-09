@@ -5,17 +5,27 @@ import { Link } from "react-router-dom";
 
 export default function Header() {
   const [isIslandExpanded, setIsIslandExpanded] = useState(false);
+  const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
   const islandRef = useRef(null);
 
   // Toggle expand/collapse
   const toggleIsland = (e) => {
-    // Only toggle if we're on mobile and clicking the island itself
     if (window.innerWidth <= 768) {
-      setIsIslandExpanded(!isIslandExpanded);
+      if (!isIslandExpanded) {
+        setIsIslandExpanded(true);
+      }
     }
   };
 
-  const closeIsland = () => setIsIslandExpanded(false);
+  const toggleControlCenter = (e) => {
+    e.stopPropagation(); // Prevent island toggle
+    setIsControlCenterOpen(!isControlCenterOpen);
+  };
+
+  const closeIsland = () => {
+    setIsIslandExpanded(false);
+    setIsControlCenterOpen(false);
+  };
 
   // Click outside to collapse
   useEffect(() => {
@@ -37,15 +47,15 @@ export default function Header() {
     <header className="header-container">
       <div
         ref={islandRef}
-        className={`header-island ${isIslandExpanded ? "is-expanded" : ""}`}
+        className={`header-island ${isIslandExpanded ? "is-expanded" : ""} ${isControlCenterOpen ? "is-cc-open" : ""}`}
         onClick={toggleIsland}
       >
         <div className="island-content">
           <div className="island-left">
-            <Link to="/" onClick={closeIsland} className="logo-link">
+            <div onClick={isIslandExpanded ? toggleControlCenter : null} className="logo-link">
               <img src={logoImg} alt="Logo" className="logo-image" />
               <span className="logo-text">Scratchpad</span>
-            </Link>
+            </div>
           </div>
 
           <nav className="island-nav">
@@ -68,6 +78,30 @@ export default function Header() {
               </svg>
             </a>
           </div>
+        </div>
+
+        {/* CONTROL CENTER PANEL */}
+        <div className="control-center-panel">
+          {/* Main Navigation Grid */}
+          <div className="cc-nav-grid">
+            <Link to="/" onClick={closeIsland} className="cc-nav-card cc-home">
+              <span className="emoji">🏠</span>
+              <span>Home</span>
+            </Link>
+            <Link to="/simulation" onClick={closeIsland} className="cc-nav-card cc-simulation">
+              <span className="emoji">🚀</span>
+              <span>Simulation</span>
+            </Link>
+            <Link to="/leetcode" onClick={closeIsland} className="cc-nav-card cc-leetcode">
+              <span className="emoji">🧩</span>
+              <span>LeetCode</span>
+            </Link>
+            <Link to="/system-design" onClick={closeIsland} className="cc-nav-card cc-sysdesign">
+              <span className="emoji">🏗️</span>
+              <span>System Design</span>
+            </Link>
+          </div>
+
         </div>
       </div>
     </header>
