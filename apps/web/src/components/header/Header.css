@@ -140,8 +140,8 @@
 /* MOBILE (DYNAMIC ISLAND) */
 @media (max-width: 768px) {
   :root {
-    --header-height: 80px;
-    /* Reduced to bring content up */
+    --header-height: 40px;
+    /* Reduced to pull content higher up */
   }
 
   .header-container {

@@ -137,8 +137,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .home-content {
-    padding: 100px 24px 60px;
-    /* More top padding for Dynamic Island */
+    padding: 70px 24px 60px;
+    /* Reduced top padding to tighten headers */
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -156,6 +156,7 @@
 
   .home-content__title {
     font-size: 32px;
+    margin: 0;
   }
 
   .home-content__text p {
