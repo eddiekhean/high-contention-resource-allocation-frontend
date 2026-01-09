@@ -78,7 +78,7 @@
 
 /* Fullpage wrapper for Hero + Content */
 .home-fullpage-wrapper {
-  height: 100vh;
+  height: 100%;
   width: 100%;
   overflow: hidden;
   position: relative;
@@ -137,7 +137,13 @@
 /* Responsive */
 @media (max-width: 768px) {
   .home-content {
-    padding: 72px 20px;
+    padding: 60px 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+    /* Safety for very long content on small height screens */
   }
 
   .home-content__grid {
@@ -146,7 +152,12 @@
   }
 
   .home-content__title {
-    font-size: 36px;
+    font-size: 32px;
+  }
+
+  .home-content__text p {
+    font-size: 15px;
+    max-width: 100%;
   }
 }
 

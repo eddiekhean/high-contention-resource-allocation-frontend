@@ -11,13 +11,32 @@ export default function Home() {
   const THROTTLE_DELAY = 800;
 
   useEffect(() => {
+    const touchStartPos = { y: 0 };
+
     const handleWheel = (e) => {
       if (isThrottling.current) return;
-
       e.preventDefault();
-
       const direction = e.deltaY > 0 ? 1 : -1;
+      changeSection(direction);
+    };
 
+    const handleTouchStart = (e) => {
+      touchStartPos.y = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (isThrottling.current) return;
+      const touchEndScale = 50; // threshold for swipe
+      const touchEndPos = e.changedTouches[0].clientY;
+      const diff = touchStartPos.y - touchEndPos;
+
+      if (Math.abs(diff) > touchEndScale) {
+        const direction = diff > 0 ? 1 : -1;
+        changeSection(direction);
+      }
+    };
+
+    const changeSection = (direction) => {
       setActiveSectionIndex((prevIndex) => {
         const newIndex = prevIndex + direction;
         return Math.max(0, Math.min(TOTAL_SECTIONS - 1, newIndex));
@@ -30,9 +49,13 @@ export default function Home() {
     };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
   }, []);
 

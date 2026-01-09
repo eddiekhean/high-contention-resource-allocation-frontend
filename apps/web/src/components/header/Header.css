@@ -1,149 +1,255 @@
 :root {
-  /* Inner highlight / shadow */
-  --glass-inner-shadow-color: rgba(255, 255, 255, 0.7);
-  --glass-inner-shadow-blur: 20px;
-  --glass-inner-shadow-spread: -5px;
-
-  /* Glass tint */
-  --glass-tint-color: 255, 255, 255;
-  --glass-tint-opacity: 0.4;
-
-  /* Frost */
-  --glass-frost-blur: 2px;
-
-  /* Outer shadow */
-  --glass-outer-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
-
-  /* Radius */
-  --glass-radius: 28px;
+  --header-height: 100px;
+  --island-bg: rgba(10, 10, 15, 0.85);
+  --island-border: rgba(255, 255, 255, 0.1);
+  --island-expanded-width: min(90vw, 360px);
 }
 
-/* Global */
-body {
-  font-family: "Clash Grotesk", sans-serif;
-}
-
-/* Header */
-.header {
+.header-container {
   position: fixed;
-  top: 0; /* QUAN TRỌNG */
+  top: 0;
   left: 0;
   width: 100%;
-
   height: var(--header-height);
-  background: #07070a;
-
-  display: grid;
-  grid-template-columns: 2fr 6fr 2fr;
-  align-items: center; /* KHÔNG dùng start */
-  padding: 0 16px;
-
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header {
-  height: var(--header-height);
-}
-
-/* Logo */
-.logo {
-  color: #fff;
-  font-weight: 500;
-  font-size: 18px;
-  padding-left: 5px;
-}
-.notch {
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: center;
-  text-align: center;
-
-  /* Glass nền */
-  background: linear-gradient(
-    180deg,
-    rgba(20, 20, 30, 0.85),
-    rgba(10, 10, 15, 0.9)
-  );
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
-
-  /* Viền tinh tế */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0 0 28px 28px;
-
-  /* Bóng chiều sâu */
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-}
-
-/* Aura rất nhẹ phía dưới */
-.notch::after {
-  content: "";
-  position: absolute;
-  inset: -40%;
-  background: radial-gradient(
-    circle at bottom,
-    rgba(120, 120, 255, 0.12),
-    transparent 60%
-  );
-  filter: blur(40px);
-  z-index: -1;
-}
-.notch a {
-  color: #e7e7f3;
-  font-size: 17px;
-  font-weight: 300;
-  text-decoration: none;
-  opacity: 0.8;
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease,
-    text-shadow 0.25s ease;
-}
-
-.notch a:hover {
-  opacity: 1;
-  transform: translateY(-1px);
-  text-shadow: 0 4px 12px rgba(120, 120, 255, 0.35);
-}
-.notch a:hover {
-  opacity: 1;
-  transform: translateY(-1px);
-  text-shadow: 0 4px 12px rgba(120, 120, 255, 0.35);
-}
-
-/* GitHub */
-.github {
-  color: #e5e5e5;
-  font-size: 18px;
-  font-weight: 500;
-  text-decoration: none;
-  opacity: 0.85;
-}
-
-.github:hover {
-  opacity: 1;
-  font-weight: 500;
-}
-
-.left,
-.right {
   display: flex;
   align-items: center;
-  height: 100%;
+  justify-content: center;
+  background: #07070a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-.right {
+
+.header-island {
+  width: 100%;
+  max-width: 1400px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.island-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* DESKTOP STYLES */
+.island-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.logo-image {
+  width: 48px;
+  height: 48px;
+  transition: transform 0.3s ease;
+}
+
+.logo-text {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.island-nav {
+  display: flex;
+  gap: 56px;
+  align-items: center;
+  /* Glass pill look for desktop center */
+  padding: 16px 48px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  backdrop-filter: blur(10px);
+}
+
+.island-nav a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.island-nav a:hover {
+  color: #fff;
+}
+
+.island-right {
+  flex: 1;
+  display: flex;
   justify-content: flex-end;
 }
-.center {
+
+.github-btn {
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 12px;
+  padding: 14px 32px;
+  background: #fff;
+  color: #000;
+  border-radius: 100px;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.github-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.github-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* RESPONSIVE DESKTOP */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .island-nav {
+    gap: 16px;
+    padding: 8px 16px;
+  }
+
+  .island-nav a {
+    font-size: 13px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+  }
+}
+
+/* MOBILE (DYNAMIC ISLAND) */
+@media (max-width: 768px) {
+  .header-container {
+    background: transparent !important;
+    pointer-events: none;
+    height: 80px;
+    /* More space for island */
+  }
+
+  .header-island {
+    pointer-events: auto;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 72px;
+    /* Compact width */
+    height: 36px;
+    /* Compact height */
+    padding: 0;
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--island-border);
+    backdrop-filter: blur(20px);
+    cursor: pointer;
+    transition:
+      width 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+      height 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+      border-radius 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+      top 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .header-island:active {
+    transform: translateX(-50%) scale(0.96);
+  }
+
+  .header-island.is-expanded {
+    width: var(--island-expanded-width);
+    height: 56px;
+    border-radius: 30px;
+    top: 16px;
+    padding: 0 16px;
+    background: var(--island-bg);
+  }
+
+  .island-content {
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    transition-delay: 0.1s;
+    justify-content: center;
+    /* Center logo in compact mode */
+  }
+
+  .is-expanded .island-content {
+    opacity: 1;
+    justify-content: space-between;
+  }
+
+  /* Island Nav is hidden on mobile island */
+  .island-nav {
+    display: none !important;
+  }
+
+  .github-text {
+    display: none !important;
+  }
+
+  .logo-text {
+    display: none !important;
+  }
+
+  .is-expanded .logo-text {
+    display: block !important;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+    margin-left: 10px;
+  }
+
+  .island-left {
+    flex: none;
+  }
+
+  .logo-image {
+    width: 24px;
+    height: 24px;
+  }
+
+  .is-expanded .logo-image {
+    width: 28px;
+    height: 28px;
+  }
+
+  .island-right {
+    flex: none;
+  }
+
+  .github-btn {
+    padding: 8px;
+  }
+
+  .github-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Island Nav on expanded mobile is likely too big, 
+     but requirements say reveal title + github icon. 
+     If we want links, we need a small row or hide. 
+     Requirements: "Reveal: Logo, Title text, GitHub button or icon" */
 }
