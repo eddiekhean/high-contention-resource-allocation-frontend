@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import useReveal from "../../hooks/useReveal";
 import { useRevealOnMount } from "../../hooks/useRevealOnMount";
 export default function SimulationContent() {
-  const introRef = useRevealOnMount(150);
-  const listRef = useReveal();
+  const introRef = useRevealOnMount(100);
+  const listRef = useRevealOnMount(400);
 
   return (
     <main className="app-stage app-container">

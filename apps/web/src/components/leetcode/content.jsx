@@ -5,8 +5,8 @@ import useReveal from "../../hooks/useReveal";
 import { useRevealOnMount } from "../../hooks/useRevealOnMount";
 
 export default function LeetCodeContent() {
-    const introRef = useRevealOnMount(150);
-    const listRef = useReveal();
+    const introRef = useRevealOnMount(100);
+    const listRef = useRevealOnMount(400);
 
     return (
         <main className="app-stage app-container">
@@ -50,6 +50,22 @@ export default function LeetCodeContent() {
                 <ul>
                     <li>
                         <Link
+                            to="/leetcode/labyrinth"
+                            className="nav-card"
+                        >
+                            <div className="item-header">
+                                <span className="name">
+                                    Labyrinth problem
+                                </span>
+                            </div>
+                            <span className="meta">
+                                BFS · DFS · A* · Variations
+                            </span>
+                        </Link>
+                    </li>
+
+                    <li>
+                        <Link
                             to="/leetcode/arrays-and-hashing"
                             className="nav-card"
                         >
@@ -78,17 +94,6 @@ export default function LeetCodeContent() {
                                 Ordering · Invariants · Linear Scans
                             </span>
                         </Link>
-                    </li>
-
-                    <li className="soon">
-                        <div className="nav-card disabled">
-                            <div className="item-header">
-                                <span className="name">
-                                    Graphs & Search Strategies
-                                </span>
-                            </div>
-                            <span className="meta">BFS · DFS · State Space (soon)</span>
-                        </div>
                     </li>
                 </ul>
             </section>

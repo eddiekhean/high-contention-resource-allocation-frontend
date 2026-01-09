@@ -19,7 +19,7 @@ export default function Header() {
       <div className="right">
         <a
           className="github"
-          href="https://github.com/yourname"
+          href="https://github.com/eddiekhean/high-contention-resource-allocation"
           target="_blank"
           rel="noreferrer"
         >
