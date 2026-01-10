@@ -2,13 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import HomeHero from "../components/home/HomeHero";
 import HomeContent from "../components/home/HomeContent";
 import PlanetBackground from "../components/home/PlanetBackground";
+import PullToRefresh from "../components/common/PullToRefresh";
 
 export default function Home() {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const isThrottling = useRef(false);
 
   const TOTAL_SECTIONS = 7; // 1 Hero + 6 Content sections
   const THROTTLE_DELAY = 800;
+  const REFRESH_THRESHOLD = 120;
 
   useEffect(() => {
     const touchStartPos = { y: 0 };
@@ -44,16 +48,46 @@ export default function Home() {
       touchStartPos.y = e.touches[0].clientY;
     };
 
-    const handleTouchEnd = (e) => {
-      if (isThrottling.current) return;
-      const touchEndScale = 50; // threshold for swipe
-      const touchEndPos = e.changedTouches[0].clientY;
-      const diff = touchStartPos.y - touchEndPos;
+    const handleTouchMove = (e) => {
+      if (isRefreshing || isThrottling.current) return;
 
-      if (Math.abs(diff) > touchEndScale) {
-        const direction = diff > 0 ? 1 : -1;
-        if (canChangeSection(direction)) {
-          changeSection(direction);
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - touchStartPos.y;
+
+      // Pull to refresh logic: only on Hero section at the top
+      if (activeSectionIndex === 0 && diff > 0) {
+        // Damping effect
+        const dampenedDiff = Math.pow(diff, 0.85);
+        setPullDistance(dampenedDiff);
+
+        // Prevent default scroll behavior when pulling
+        if (dampenedDiff > 10) {
+          if (e.cancelable) e.preventDefault();
+        }
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      if (isRefreshing || isThrottling.current) return;
+
+      if (pullDistance >= REFRESH_THRESHOLD) {
+        setIsRefreshing(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        setPullDistance(0);
+
+        // Handle normal section navigation
+        const touchEndScale = 50; // threshold for swipe
+        const touchEndPos = e.changedTouches[0].clientY;
+        const diff = touchStartPos.y - touchEndPos;
+
+        if (Math.abs(diff) > touchEndScale) {
+          const direction = diff > 0 ? 1 : -1;
+          if (canChangeSection(direction)) {
+            changeSection(direction);
+          }
         }
       }
     };
@@ -72,17 +106,25 @@ export default function Home() {
 
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, []);
+  }, [activeSectionIndex, pullDistance, isRefreshing]);
 
   return (
     <div className="home-fullpage-wrapper">
+      <PullToRefresh
+        pullDistance={pullDistance}
+        threshold={REFRESH_THRESHOLD}
+        isRefreshing={isRefreshing}
+      />
+
       {/* Background Layer (Persistent) */}
       <PlanetBackground
         activeSectionIndex={activeSectionIndex}

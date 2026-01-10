@@ -1,9 +1,9 @@
 .planet-layer {
     position: absolute;
     inset: 0;
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
     pointer-events: none;
     z-index: 0;
-    /* nền thấp nhất trong hero */
 }
 
 .main-planet {
@@ -17,14 +17,16 @@
 
     /* Base State */
     opacity: 0;
-    transform: translate(-25%, -25%) scale(0.6);
+    transform: translate(-25%, -25) scale(0.6);
+    filter: brightness(0.4) contrast(1.2) saturate(1.1);
 
     /* Transitions */
     transition:
         opacity 1.5s cubic-bezier(0.2, 0.8, 0.2, 1),
-        transform 2.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transform 2.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+        filter 1.5s ease;
 
-    will-change: transform, opacity;
+    will-change: transform, opacity, filter;
 }
 
 /* --- Phase Mapping --- */
