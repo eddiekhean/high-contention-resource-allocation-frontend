@@ -7,6 +7,7 @@ import VoucherAllocationSimulation from "./components/simulation/VoucherAllocati
 import LeetCode from "./pages/LeetCode";
 import Labyrinth from "./components/leetcode/Labyrinth";
 import SystemDesign from "./pages/SystemDesign";
+import Auth from "./pages/Auth";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/leetcode" element={<LeetCode />} />
             <Route path="/leetcode/labyrinth" element={<Labyrinth />} />
             <Route path="/system-design" element={<SystemDesign />} />
+            <Route path="/auth" element={<Auth />} />
             <Route
               path="/simulations/voucher-allocation"
               element={<VoucherAllocationSimulation />}

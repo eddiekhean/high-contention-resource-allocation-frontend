@@ -116,6 +116,28 @@
   transform: translateY(-1px);
 }
 
+.login-btn {
+  display: flex;
+  align-items: center;
+  padding: 14px 28px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-right: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  backdrop-filter: blur(10px);
+}
+
+.login-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
 .github-icon {
   width: 24px;
   height: 24px;
@@ -228,21 +250,25 @@
 
   /* Disable all links inside island when collapsed so click expands instead */
   .logo-link,
+  .login-btn,
   .github-btn {
     pointer-events: none;
     transition: opacity 0.3s ease;
   }
 
   .is-expanded .logo-link,
+  .is-expanded .login-btn,
   .is-expanded .github-btn {
     pointer-events: auto;
   }
 
+  .login-btn,
   .github-btn {
     opacity: 0;
-    /* Hide github btn when compact */
+    /* Hide btns when compact */
   }
 
+  .is-expanded .login-btn,
   .is-expanded .github-btn {
     opacity: 1;
   }
@@ -298,6 +324,12 @@
   .github-icon {
     width: 28px;
     height: 28px;
+  }
+
+  .login-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    margin-right: 12px;
   }
 
   /* CONTROL CENTER PANEL */
@@ -380,6 +412,13 @@
   .cc-sysdesign {
     background: linear-gradient(135deg, rgba(175, 82, 222, 0.2), rgba(175, 82, 222, 0.05));
     border-color: rgba(175, 82, 222, 0.2);
+  }
+
+  .cc-login {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    border-color: rgba(255, 255, 255, 0.1);
+    grid-column: span 2;
+    /* Make it full width in the grid */
   }
 
   .cc-nav-card:active {

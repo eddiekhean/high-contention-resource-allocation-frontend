@@ -66,6 +66,9 @@ export default function Header() {
           </nav>
 
           <div className="island-right">
+            <Link to="/auth" onClick={closeIsland} className="login-btn">
+              Login
+            </Link>
             <a
               className="github-btn"
               href="https://github.com/eddiekhean/high-contention-resource-allocation"
@@ -99,6 +102,10 @@ export default function Header() {
             <Link to="/system-design" onClick={closeIsland} className="cc-nav-card cc-sysdesign">
               <span className="emoji">🏗️</span>
               <span>System Design</span>
+            </Link>
+            <Link to="/auth" onClick={closeIsland} className="cc-nav-card cc-login">
+              <span className="emoji">🔑</span>
+              <span>Login / Register</span>
             </Link>
           </div>
 

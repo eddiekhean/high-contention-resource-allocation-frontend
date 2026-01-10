@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { computeDHash, MAX_FILE_SIZE } from './ImageHashService';
+import { matchImageHash } from '../../services/simulationApi';
 import './ImageUploader.css';
 
 /**
@@ -33,21 +34,8 @@ const ImageUploader = ({ onUploadSuccess }) => {
             const computedHash = await computeDHash(file);
             setHash(computedHash);
 
-            // 3. Backend Communication
-            // JSON payload: { "dhash": "64-bit hash value" }
-            const response = await fetch('/leetcode/maze/images/match', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ dhash: computedHash }),
-            });
-
-            if (!response.ok) {
-                // If the backend fails, we still want to show the hash locally for the UI
-                console.warn('Backend match request failed:', response.status);
-                // Note: We don't throw here if we want to allow the UI to proceed with the local image
-            }
+            // 3. Backend Communication via Service
+            await matchImageHash(computedHash);
 
             // Callback to parent component (e.g., to display the image)
             if (onUploadSuccess) {
