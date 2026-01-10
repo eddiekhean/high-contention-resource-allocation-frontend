@@ -8,7 +8,8 @@ const Auth = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        name: ''
+        name: '',
+        companyName: ''
     });
 
     const handleChange = (e) => {
@@ -30,7 +31,8 @@ const Auth = () => {
             email: '',
             password: '',
             confirmPassword: '',
-            name: ''
+            name: '',
+            companyName: ''
         });
     };
 
@@ -49,20 +51,35 @@ const Auth = () => {
 
                     <form className="auth-form" onSubmit={handleSubmit}>
                         {!isLogin && (
-                            <div className="input-group">
-                                <label htmlFor="name">Full Name</label>
-                                <div className="input-wrapper">
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        placeholder="John Doe"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        required
-                                    />
+                            <>
+                                <div className="input-group">
+                                    <label htmlFor="name">Full Name</label>
+                                    <div className="input-wrapper">
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            placeholder="John Doe"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                                <div className="input-group">
+                                    <label htmlFor="companyName">Company Name <span style={{ opacity: 0.5, fontSize: '12px' }}>(Optional)</span></label>
+                                    <div className="input-wrapper">
+                                        <input
+                                            type="text"
+                                            id="companyName"
+                                            name="companyName"
+                                            placeholder="Acme Corp"
+                                            value={formData.companyName}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                         <div className="input-group">
