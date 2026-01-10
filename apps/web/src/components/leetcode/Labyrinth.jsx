@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
+import ImageUploader from './ImageUploader';
 import './Labyrinth.css';
 
 /**
@@ -83,26 +84,14 @@ const Labyrinth = () => {
     const [showGallery, setShowGallery] = useState(true); // Default to true for better UI presence
     const [selectedPresetId, setSelectedPresetId] = useState(null);
 
-    /**
-     * Stub function for backend duplicate check
-     * @param {File} imageFile
-     */
-    async function checkDuplicateMaze(imageFile) {
-        console.log('Duplicate check triggered for:', imageFile.name);
-        // TODO: backend will check image hash (dHash / pHash)
-    }
-
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setMazeImage(reader.result);
-                setSelectedPresetId(null);
-            };
-            reader.readAsDataURL(file);
-            checkDuplicateMaze(file);
-        }
+    const handleUploadSuccess = (file, hash) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setMazeImage(reader.result);
+            setSelectedPresetId(null);
+        };
+        reader.readAsDataURL(file);
+        console.log('Image processed and matched. dHash:', hash);
     };
 
     const handleSelectPreset = (maze) => {
@@ -134,10 +123,7 @@ const Labyrinth = () => {
                         </div>
 
                         <div className="upload-btn-container">
-                            <label className="custom-file-upload">
-                                <input type="file" accept="image/*" onChange={handleImageUpload} />
-                                Upload Maze Image
-                            </label>
+                            <ImageUploader onUploadSuccess={handleUploadSuccess} />
                         </div>
                     </div>
 
