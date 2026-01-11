@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "./home.css";
 import OrbitalBackground from "../common/OrbitalBackground";
 export default function HomeHero() {
@@ -16,7 +17,9 @@ export default function HomeHero() {
           Learning backend systems by building and simulating real problems.
         </p>
 
-        <button className="home-hero__cta">View the first project →</button>
+        <Link to="/simulations/voucher-allocation" className="home-hero__cta">
+          View the first project →
+        </Link>
       </div>
     </section>
   );
