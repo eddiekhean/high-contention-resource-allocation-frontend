@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
 import ImageUploader from './ImageUploader';
+import ImageGallery from './ImageGallery';
 import './Labyrinth.css';
 
 /**
@@ -9,34 +10,6 @@ import './Labyrinth.css';
  * An educational UI for explaining and visualizing the Labyrinth (Maze) Problem.
  * Refined to match the project's design language and layout patterns.
  */
-
-// Mock data for predefined sample mazes
-const PRESET_MAZES = [
-    {
-        id: 1,
-        name: 'Classic Grid Maze',
-        thumbnail: 'https://placehold.co/100x100/141a2a/6f8cff?text=Maze+1',
-        imageUrl: 'https://placehold.co/1200x800/0b0b0f/6f8cff?text=Classic+Grid+Maze'
-    },
-    {
-        id: 2,
-        name: 'Circular Labyrinth',
-        thumbnail: 'https://placehold.co/100x100/141a2a/6f8cff?text=Maze+2',
-        imageUrl: 'https://placehold.co/1200x800/0b0b0f/6f8cff?text=Circular+Labyrinth'
-    },
-    {
-        id: 3,
-        name: 'Recursive Division',
-        thumbnail: 'https://placehold.co/100x100/141a2a/6f8cff?text=Maze+3',
-        imageUrl: 'https://placehold.co/1200x800/0b0b0f/6f8cff?text=Recursive+Division'
-    },
-    {
-        id: 4,
-        name: 'Sparse Maze',
-        thumbnail: 'https://placehold.co/100x100/141a2a/6f8cff?text=Maze+4',
-        imageUrl: 'https://placehold.co/1200x800/0b0b0f/6f8cff?text=Sparse+Maze'
-    }
-];
 
 // Content for Algorithm Explanations
 const ALGORITHM_INFO = {
@@ -81,22 +54,22 @@ const ALGORITHM_INFO = {
 const Labyrinth = () => {
     const [selectedAlgo, setSelectedAlgo] = useState('bfs');
     const [mazeImage, setMazeImage] = useState(null);
-    const [showGallery, setShowGallery] = useState(true); // Default to true for better UI presence
-    const [selectedPresetId, setSelectedPresetId] = useState(null);
+    const [showGallery, setShowGallery] = useState(true);
+    const [selectedImageId, setSelectedImageId] = useState(null);
 
     const handleUploadSuccess = (file, hash) => {
         const reader = new FileReader();
         reader.onloadend = () => {
             setMazeImage(reader.result);
-            setSelectedPresetId(null);
+            setSelectedImageId(null);
         };
         reader.readAsDataURL(file);
         console.log('Image processed and matched. dHash:', hash);
     };
 
-    const handleSelectPreset = (maze) => {
-        setMazeImage(maze.imageUrl);
-        setSelectedPresetId(maze.id);
+    const handleSelectImage = (img) => {
+        setMazeImage(img.url);
+        setSelectedImageId(img.id);
     };
 
     const currentAlgo = ALGORITHM_INFO[selectedAlgo];
@@ -116,7 +89,7 @@ const Labyrinth = () => {
                                     <div className="maze-placeholder-icon">🗺️</div>
                                     <p>No maze selected</p>
                                     <p style={{ fontSize: '13px', marginTop: '8px', opacity: 0.6 }}>
-                                        Upload an image or browse samples
+                                        Upload an image or browse the gallery
                                     </p>
                                 </div>
                             )}
@@ -128,26 +101,21 @@ const Labyrinth = () => {
                     </div>
 
                     <div className="labyrinth-card gallery-container">
-                        <button
-                            className="browse-btn"
-                            onClick={() => setShowGallery(!showGallery)}
-                        >
-                            {showGallery ? 'Hide Sample Mazes' : 'Browse Sample Mazes'}
-                        </button>
+                        <div className="gallery-header">
+                            <h2>Community Gallery</h2>
+                            <button
+                                className="browse-btn"
+                                onClick={() => setShowGallery(!showGallery)}
+                            >
+                                {showGallery ? 'Hide Gallery' : 'Show Gallery'}
+                            </button>
+                        </div>
 
                         {showGallery && (
-                            <div className="gallery-grid">
-                                {PRESET_MAZES.map((maze) => (
-                                    <div
-                                        key={maze.id}
-                                        className={`thumbnail-item ${selectedPresetId === maze.id ? 'active' : ''}`}
-                                        onClick={() => handleSelectPreset(maze)}
-                                        title={maze.name}
-                                    >
-                                        <img src={maze.thumbnail} alt={maze.name} />
-                                    </div>
-                                ))}
-                            </div>
+                            <ImageGallery
+                                onSelect={handleSelectImage}
+                                selectedId={selectedImageId}
+                            />
                         )}
                     </div>
                 </section>
