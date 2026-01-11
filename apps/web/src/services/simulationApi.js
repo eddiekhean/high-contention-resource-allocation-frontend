@@ -1,6 +1,6 @@
 import { normalizeSimulation } from "./normalizeSimulation";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.eddiekhean.site";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export async function runSimulation(params) {
   const res = await fetch(`${API_BASE_URL}/public/simulate`, {
@@ -19,36 +19,27 @@ export async function runSimulation(params) {
   return raw;
 }
 
-export async function matchImageHash(dhash) {
-  const res = await fetch(`${API_BASE_URL}/leetcode/maze/images/match`, {
+
+
+export async function generateMaze({ rows, cols, loop_ratio, seed }) {
+  const payload = { rows, cols, loop_ratio };
+  if (seed !== undefined && seed !== null && seed !== '') {
+    payload.seed = Number(seed);
+  }
+
+  const res = await fetch(`${API_BASE_URL}/public/leetcode/maze/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ dhash }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
-    throw new Error(`Match request failed: ${res.status}`);
+    throw new Error(`Maze generation failed: ${res.status}`);
   }
 
-  const data = await res.json();
-  console.log("Image Match Response:", data);
-  return data;
+  return await res.json();
 }
 
-export async function fetchImages() {
-  const res = await fetch(`${API_BASE_URL}/public/images`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch images: ${res.status}`);
-  }
-
-  const data = await res.json();
-  return data.images;
-}

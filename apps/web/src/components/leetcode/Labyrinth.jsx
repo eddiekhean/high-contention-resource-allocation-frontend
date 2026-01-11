@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
-import ImageUploader from './ImageUploader';
-import ImageGallery from './ImageGallery';
+import MazeRenderer from './MazeRenderer';
+import { generateMaze } from '../../services/simulationApi';
 import './Labyrinth.css';
 
 /**
@@ -53,23 +53,33 @@ const ALGORITHM_INFO = {
 
 const Labyrinth = () => {
     const [selectedAlgo, setSelectedAlgo] = useState('bfs');
-    const [mazeImage, setMazeImage] = useState(null);
-    const [showGallery, setShowGallery] = useState(true);
-    const [selectedImageId, setSelectedImageId] = useState(null);
 
-    const handleUploadSuccess = (file, hash) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setMazeImage(reader.result);
-            setSelectedImageId(null);
-        };
-        reader.readAsDataURL(file);
-        console.log('Image processed and matched. dHash:', hash);
-    };
+    // Maze Data State
+    const [mazeData, setMazeData] = useState(null);
+    const [genParams, setGenParams] = useState({
+        rows: 20,
+        cols: 20,
+        loop_ratio: 0.5,
+        seed: ''
+    });
+    const [loading, setLoading] = useState(false);
 
-    const handleSelectImage = (img) => {
-        setMazeImage(img.url);
-        setSelectedImageId(img.id);
+    const handleGenerate = async () => {
+        setLoading(true);
+        try {
+            const data = await generateMaze({
+                rows: Number(genParams.rows),
+                cols: Number(genParams.cols),
+                loop_ratio: Number(genParams.loop_ratio),
+                seed: genParams.seed
+            });
+            setMazeData(data);
+        } catch (error) {
+            console.error("Failed to generate maze:", error);
+            // Optionally set error state here or show a toast
+        } finally {
+            setLoading(false);
+        }
     };
 
     const currentAlgo = ALGORITHM_INFO[selectedAlgo];
@@ -78,45 +88,71 @@ const Labyrinth = () => {
         <div className="labyrinth-page">
             <OrbitalBackground />
             <div className="labyrinth-container">
-                {/* LEFT COLUMN: MAZE DISPLAY & GALLERY */}
+                {/* LEFT COLUMN: MAZE DISPLAY & CONTROL */}
                 <section className="maze-section">
                     <div className="labyrinth-card">
                         <div className="maze-display-frame">
-                            {mazeImage ? (
-                                <img src={mazeImage} alt="Selected Maze" />
+                            {mazeData ? (
+                                <MazeRenderer mazeData={mazeData} />
                             ) : (
                                 <div className="maze-placeholder">
                                     <div className="maze-placeholder-icon">🗺️</div>
-                                    <p>No maze selected</p>
+                                    <p>No maze generated</p>
                                     <p style={{ fontSize: '13px', marginTop: '8px', opacity: 0.6 }}>
-                                        Upload an image or browse the gallery
+                                        Set parameters and click Generate
                                     </p>
                                 </div>
                             )}
                         </div>
 
-                        <div className="upload-btn-container">
-                            <ImageUploader onUploadSuccess={handleUploadSuccess} />
-                        </div>
-                    </div>
+                        {/* Control Panel */}
+                        <div style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <div className="control-group">
+                                <label>Rows</label>
+                                <input
+                                    type="number"
+                                    value={genParams.rows}
+                                    onChange={e => setGenParams({ ...genParams, rows: e.target.value })}
+                                    min="5" max="50"
+                                />
+                            </div>
+                            <div className="control-group">
+                                <label>Cols</label>
+                                <input
+                                    type="number"
+                                    value={genParams.cols}
+                                    onChange={e => setGenParams({ ...genParams, cols: e.target.value })}
+                                    min="5" max="50"
+                                />
+                            </div>
+                            <div className="control-group">
+                                <label>Loop Ratio</label>
+                                <input
+                                    type="number"
+                                    value={genParams.loop_ratio}
+                                    onChange={e => setGenParams({ ...genParams, loop_ratio: e.target.value })}
+                                    min="0" max="1" step="0.1"
+                                />
+                            </div>
+                            <div className="control-group">
+                                <label>Seed (Optional)</label>
+                                <input
+                                    type="number"
+                                    value={genParams.seed}
+                                    onChange={e => setGenParams({ ...genParams, seed: e.target.value })}
+                                    placeholder="Random"
+                                />
+                            </div>
 
-                    <div className="labyrinth-card gallery-container">
-                        <div className="gallery-header">
-                            <h2>Community Gallery</h2>
                             <button
-                                className="browse-btn"
-                                onClick={() => setShowGallery(!showGallery)}
+                                className="action-button"
+                                onClick={handleGenerate}
+                                disabled={loading}
+                                style={{ marginLeft: 'auto' }}
                             >
-                                {showGallery ? 'Hide Gallery' : 'Show Gallery'}
+                                {loading ? 'Generating...' : 'Generate Maze'}
                             </button>
                         </div>
-
-                        {showGallery && (
-                            <ImageGallery
-                                onSelect={handleSelectImage}
-                                selectedId={selectedImageId}
-                            />
-                        )}
                     </div>
                 </section>
 
