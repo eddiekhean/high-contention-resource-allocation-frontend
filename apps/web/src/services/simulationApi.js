@@ -1,6 +1,6 @@
 import { normalizeSimulation } from "./normalizeSimulation";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "https://www.eddiekhean.site/api/v1";
 
 export async function runSimulation(params) {
   const res = await fetch(`${API_BASE_URL}/public/simulate`, {
