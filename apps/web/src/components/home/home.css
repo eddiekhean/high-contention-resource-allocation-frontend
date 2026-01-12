@@ -89,7 +89,7 @@
 
 /* Home Content Section */
 .home-content {
-  padding: 96px 24px;
+  padding: 96px 24px 150px;
   background: transparent;
   color: #e6e6eb;
   position: relative;
@@ -140,7 +140,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .home-content {
-    padding: 70px 24px 60px;
+    padding: 70px 24px 150px;
     /* Reduced top padding to tighten headers */
     height: 100vh;
     display: flex;
