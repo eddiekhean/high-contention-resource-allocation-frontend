@@ -119,7 +119,13 @@ const MazeRenderer = ({ mazeData, cellStates }) => {
         <div className="maze-renderer">
             <canvas
                 ref={canvasRef}
-                style={{ width: '100%', height: '100%' }}
+                style={{
+                    width: 'auto',
+                    height: 'auto',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    aspectRatio: `${mazeData.cols} / ${mazeData.rows}`
+                }}
             />
         </div>
     );
