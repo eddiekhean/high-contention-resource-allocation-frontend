@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
 import MazeRenderer from './MazeRenderer';
-import { generateMaze } from '../../services/simulationApi';
+import { generateMaze, submitMaze } from '../../services/simulationApi';
 import './Labyrinth.css';
 
 /**
@@ -63,6 +63,7 @@ const Labyrinth = () => {
         seed: ''
     });
     const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const handleGenerate = async () => {
         setLoading(true);
@@ -79,6 +80,20 @@ const Labyrinth = () => {
             // Optionally set error state here or show a toast
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!mazeData) return;
+        setSubmitting(true);
+        try {
+            await submitMaze(mazeData);
+            alert("Maze submitted successfully!");
+        } catch (error) {
+            console.error("Failed to submit maze:", error);
+            alert("Failed to submit maze. Check console for details.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -151,6 +166,14 @@ const Labyrinth = () => {
                                 style={{ marginLeft: 'auto' }}
                             >
                                 {loading ? 'Generating...' : 'Generate Maze'}
+                            </button>
+                            <button
+                                className="action-button"
+                                onClick={handleSubmit}
+                                disabled={submitting || !mazeData}
+                                style={{ marginLeft: '10px' }}
+                            >
+                                {submitting ? 'Submitting...' : 'Submit Maze'}
                             </button>
                         </div>
                     </div>

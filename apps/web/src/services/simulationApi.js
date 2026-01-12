@@ -43,3 +43,19 @@ export async function generateMaze({ rows, cols, loop_ratio, seed }) {
 }
 
 
+
+export async function submitMaze(mazeData) {
+  const res = await fetch(`${API_BASE_URL}/public/leetcode/maze/submit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(mazeData),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Maze submission failed: ${res.status}`);
+  }
+
+  return await res.json();
+}
