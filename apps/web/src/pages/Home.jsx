@@ -19,20 +19,26 @@ export default function Home() {
   useEffect(() => {
     const touchStartPos = { y: 0 };
 
-    const checkScrollBoundary = (direction) => {
-      // If we're on the hero, we can always change section
-      if (activeSectionIndex === 0) return true;
+    const getScrollBounds = () => {
+      if (activeSectionIndex === 0) return { isAtTop: true, isAtBottom: true };
 
-      // Find the currently active scrollable content section
       const content = document.querySelector(".home-content");
-      if (!content) return true;
+      if (!content) return { isAtTop: true, isAtBottom: true };
 
       const { scrollTop, scrollHeight, clientHeight } = content;
 
-      // Precision tolerance for high-DPI displays
-      const isAtTop = scrollTop <= 1;
-      const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) <= 1;
+      // Precision tolerance for high-DPI displays and mobile quirks
+      // Increased to 10px to handle mobile bouncing and float precision
+      const TOLERANCE = 10;
 
+      const isAtTop = scrollTop <= TOLERANCE;
+      const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) <= TOLERANCE;
+
+      return { isAtTop, isAtBottom };
+    };
+
+    const checkScrollBoundary = (direction) => {
+      const { isAtTop, isAtBottom } = getScrollBounds();
       if (direction > 0 && isAtBottom) return true; // Scrolling down at bottom
       if (direction < 0 && isAtTop) return true;    // Scrolling up at top
 
@@ -66,6 +72,7 @@ export default function Home() {
 
     const handleTouchStart = (e) => {
       touchStartPos.y = e.touches[0].clientY;
+      touchStartBounds.current = getScrollBounds();
     };
 
     const handleTouchMove = (e) => {
@@ -105,7 +112,12 @@ export default function Home() {
 
         if (Math.abs(diff) > touchEndScale) {
           const direction = diff > 0 ? 1 : -1;
-          if (checkScrollBoundary(direction)) {
+
+          let validSwitch = false;
+          if (direction > 0 && touchStartBounds.current.isAtBottom) validSwitch = true;
+          if (direction < 0 && touchStartBounds.current.isAtTop) validSwitch = true;
+
+          if (validSwitch && checkScrollBoundary(direction)) {
             changeSection(direction);
           }
         }
