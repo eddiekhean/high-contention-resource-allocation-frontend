@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
 import MazeRenderer from './MazeRenderer';
 import { generateMaze, submitMaze } from '../../services/simulationApi';
@@ -71,6 +71,13 @@ const Labyrinth = () => {
     });
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [speed, setSpeed] = useState(40);
+    const speedRef = useRef(40);
+
+    // Update ref when speed changes
+    useEffect(() => {
+        speedRef.current = speed;
+    }, [speed]);
 
     const [cellStates, setCellStates] = useState(new Map());
     const [isAnimating, setIsAnimating] = useState(false);
@@ -145,7 +152,7 @@ const Labyrinth = () => {
         setIsAnimating(true);
         let stepIndex = 0;
         let lastTime = 0;
-        const speed = 40; // ms per step
+        // speed is now read from ref in loop
 
         const newStates = new Map();
 
@@ -153,7 +160,7 @@ const Labyrinth = () => {
             if (!lastTime) lastTime = timestamp;
             const elapsed = timestamp - lastTime;
 
-            if (elapsed > speed) {
+            if (elapsed > speedRef.current) {
                 // Process one step
                 if (stepIndex < sortedSteps.length) {
                     const step = sortedSteps[stepIndex];
@@ -255,6 +262,18 @@ const Labyrinth = () => {
                                     value={genParams.seed}
                                     onChange={e => setGenParams({ ...genParams, seed: e.target.value })}
                                     placeholder="Random"
+                                />
+                            </div>
+                            <div className="control-group" style={{ flexGrow: 1, minWidth: '200px' }}>
+                                <label>Animation Speed: {speed}ms</label>
+                                <input
+                                    type="range"
+                                    min="10"
+                                    max="500"
+                                    step="10"
+                                    value={speed}
+                                    onChange={e => setSpeed(Number(e.target.value))}
+                                    style={{ width: '100%', accentColor: '#6f8cff' }}
                                 />
                             </div>
 
