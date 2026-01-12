@@ -32,7 +32,7 @@ export default function Home() {
       const TOLERANCE = 10;
 
       const isAtTop = scrollTop <= TOLERANCE;
-      const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) <= TOLERANCE;
+      const isAtBottom = (scrollTop + clientHeight) >= (scrollHeight - TOLERANCE);
 
       return { isAtTop, isAtBottom };
     };
