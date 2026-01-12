@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { drawingSurfaces } from './drawingSurfaces';
 import './MazeRenderer.css';
 
-const MazeRenderer = ({ mazeData }) => {
+const MazeRenderer = ({ mazeData, cellStates }) => {
     const canvasRef = useRef(null);
     const surfaceRef = useRef(null);
 
@@ -30,41 +30,73 @@ const MazeRenderer = ({ mazeData }) => {
         // Configure coordinate system
         // The drawingSurfaces seems to expect us to define a logical coordinate space.
         // We will map 0..cols and 0..rows to the canvas.
-        surface.setSpaceRequirements(cols, rows);
+        // pass 3 as shapeSpecificLineWidthAdjustment to make walls thicker
+        // We will reset this later for walls, or just set it here. 
+        // Actually, setSpaceRequirements sets the global line width.
+        // If we want thin walls, 1 is good.
+        surface.setSpaceRequirements(cols, rows, 1);
 
         surface.clear();
 
+        // Get styles from CSS
+        const computedStyle = getComputedStyle(canvas);
+        const wallColor = computedStyle.getPropertyValue('--maze-wall-color').trim() || '#6f8cff';
+        const wallWidth = parseFloat(computedStyle.getPropertyValue('--maze-wall-width').trim()) || 1;
+
+
         // 1. Draw Background (Optional, maybe just clear is fine)
 
-        // 2. Draw Start and End
+        // 2. Draw Cell States (Animation/Solution) - Background Layer
+        if (cellStates && cellStates.size > 0) {
+            cellStates.forEach((type, key) => {
+                const [sx, sy] = key.split(',').map(Number);
+
+                let color = null;
+                let padding = 0; // Default padding
+
+                if (type === 'VISIT') {
+                    color = '#4aa3df80'; // Light Blue
+                }
+                if (type === 'ENQUEUE') {
+                    color = '#f9f87180'; // Light Yellow
+                }
+                if (type === 'PATH') {
+                    color = '#00cc7a'; // Deep/Rich Green ("đầm")
+                    padding = 0.25; // Smaller path (inset)
+                }
+
+                if (color) {
+                    surface.setColour(color);
+                    surface.fillPolygon(
+                        { x: sx + padding, y: sy + padding },
+                        { x: sx + 1 - padding, y: sy + padding },
+                        { x: sx + 1 - padding, y: sy + 1 - padding },
+                        { x: sx + padding, y: sy + 1 - padding }
+                    );
+                }
+            });
+        }
+
+        // 3. Draw Start/End Markers (Middle Layer)
         if (start) {
-            surface.setColour('#00ff9d33'); // Transparent Green
-            surface.fillPolygon(
-                { x: start.x, y: start.y },
-                { x: start.x + 1, y: start.y },
-                { x: start.x + 1, y: start.y + 1 },
-                { x: start.x, y: start.y + 1 }
-            );
             // Marker center (filled)
             surface.setColour('#00ff9d');
             surface.fillSegment(start.x + 0.5, start.y + 0.5, 0, 0.3, 0, Math.PI * 2);
         }
 
+
+
         if (end) {
-            surface.setColour('#ff005533'); // Transparent Red
-            surface.fillPolygon(
-                { x: end.x, y: end.y },
-                { x: end.x + 1, y: end.y },
-                { x: end.x + 1, y: end.y + 1 },
-                { x: end.x, y: end.y + 1 }
-            );
             // Marker center (filled)
             surface.setColour('#ff0055');
             surface.fillSegment(end.x + 0.5, end.y + 0.5, 0, 0.3, 0, Math.PI * 2);
         }
 
-        // 3. Draw Walls
-        surface.setColour('#6f8cff');
+        // 4. Draw Walls (Last to cover edges of cells)
+        // Restore to default (1) for thinner walls
+        surface.setSpaceRequirements(cols, rows, wallWidth);
+        // Use theme color
+        surface.setColour(wallColor);
 
         cells.forEach(cell => {
             const { x, y, walls } = cell;
@@ -81,7 +113,7 @@ const MazeRenderer = ({ mazeData }) => {
             }
         };
 
-    }, [mazeData]);
+    }, [mazeData, cellStates]);
 
     return (
         <div className="maze-renderer">

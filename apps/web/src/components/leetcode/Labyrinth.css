@@ -10,6 +10,10 @@
     padding: 80px 24px 160px;
     overflow-x: hidden;
     font-family: "Clash Grotesk", system-ui, sans-serif;
+
+    /* Maze Rendering Theme */
+    --maze-wall-color: #6f8cff;
+    --maze-wall-width: 1;
 }
 
 .labyrinth-container {

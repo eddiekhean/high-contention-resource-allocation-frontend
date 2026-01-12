@@ -9,15 +9,17 @@ export default function Home() {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const isThrottling = useRef(false);
+  const overscrollAccumulator = useRef(0);
 
   const TOTAL_SECTIONS = 7; // 1 Hero + 6 Content sections
   const THROTTLE_DELAY = 800;
   const REFRESH_THRESHOLD = 120;
+  const OVERSCROLL_THRESHOLD = 15; // Require some extra wheel movement to switch
 
   useEffect(() => {
     const touchStartPos = { y: 0 };
 
-    const canChangeSection = (direction) => {
+    const checkScrollBoundary = (direction) => {
       // If we're on the hero, we can always change section
       if (activeSectionIndex === 0) return true;
 
@@ -26,8 +28,10 @@ export default function Home() {
       if (!content) return true;
 
       const { scrollTop, scrollHeight, clientHeight } = content;
-      const isAtTop = scrollTop <= 0;
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1; // 1px buffer
+
+      // Precision tolerance for high-DPI displays
+      const isAtTop = scrollTop <= 1;
+      const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) <= 1;
 
       if (direction > 0 && isAtBottom) return true; // Scrolling down at bottom
       if (direction < 0 && isAtTop) return true;    // Scrolling up at top
@@ -38,9 +42,25 @@ export default function Home() {
     const handleWheel = (e) => {
       if (isThrottling.current) return;
       const direction = e.deltaY > 0 ? 1 : -1;
-      if (canChangeSection(direction)) {
-        e.preventDefault();
-        changeSection(direction);
+
+      if (checkScrollBoundary(direction)) {
+        // We are at the boundary, accumulate overscroll intention
+        overscrollAccumulator.current += e.deltaY;
+
+        // If we've accumulated enough scroll "force" past the boundary
+        if (Math.abs(overscrollAccumulator.current) > OVERSCROLL_THRESHOLD) {
+          // Verify direction matches accumulation to avoid jitter
+          if ((overscrollAccumulator.current > 0 && direction > 0) ||
+            (overscrollAccumulator.current < 0 && direction < 0)) {
+
+            e.preventDefault();
+            changeSection(direction);
+            overscrollAccumulator.current = 0; // Reset after switch
+          }
+        }
+      } else {
+        // Not at boundary, reset accumulator so we don't accidentally switch later
+        overscrollAccumulator.current = 0;
       }
     };
 
@@ -85,7 +105,7 @@ export default function Home() {
 
         if (Math.abs(diff) > touchEndScale) {
           const direction = diff > 0 ? 1 : -1;
-          if (canChangeSection(direction)) {
+          if (checkScrollBoundary(direction)) {
             changeSection(direction);
           }
         }

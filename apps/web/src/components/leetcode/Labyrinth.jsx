@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
 import MazeRenderer from './MazeRenderer';
 import { generateMaze, submitMaze } from '../../services/simulationApi';
@@ -51,6 +51,13 @@ const ALGORITHM_INFO = {
     }
 };
 
+const TRAVERSAL_STRATEGIES = {
+    bfs: "BFS",
+    dfs: "DFS",
+    astar: "ASTAR",
+    greedy: "GREEDY"
+};
+
 const Labyrinth = () => {
     const [selectedAlgo, setSelectedAlgo] = useState('bfs');
 
@@ -65,8 +72,17 @@ const Labyrinth = () => {
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
+    const [cellStates, setCellStates] = useState(new Map());
+    const [isAnimating, setIsAnimating] = useState(false);
+    const animationRef = useRef(null);
+
     const handleGenerate = async () => {
         setLoading(true);
+        // Reset states on new generation
+        setCellStates(new Map());
+        setIsAnimating(false);
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
         try {
             const data = await generateMaze({
                 rows: Number(genParams.rows),
@@ -86,15 +102,98 @@ const Labyrinth = () => {
     const handleSubmit = async () => {
         if (!mazeData) return;
         setSubmitting(true);
+        // Clear previous animation
+        setCellStates(new Map());
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+        const payload = {
+            ...mazeData,
+            strategy: TRAVERSAL_STRATEGIES[selectedAlgo] || "BFS"
+        };
+
         try {
-            await submitMaze(mazeData);
-            alert("Maze submitted successfully!");
+            const result = await submitMaze(payload);
+            console.log("Maze submitted successfully (verified HMR), result:", result);
+            // Handle PascalCase (Path, Steps) or camelCase (path, steps)
+            // Backend seems to return PascalCase based on logs
+            const steps = result.Steps || result.steps;
+            const path = result.Path || result.path;
+
+            // Start animation
+            animateSolution(steps, path);
         } catch (error) {
             console.error("Failed to submit maze:", error);
             alert("Failed to submit maze. Check console for details.");
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const animateSolution = (steps, finalPath) => {
+        if (!steps || steps.length === 0) {
+            console.warn("No steps to animate. Received:", steps);
+            return;
+        }
+
+        // Ensure steps are sorted by step index
+        const sortedSteps = [...steps].sort((a, b) => {
+            const stepA = a.step !== undefined ? a.step : a.Step;
+            const stepB = b.step !== undefined ? b.step : b.Step;
+            return stepA - stepB;
+        });
+
+        setIsAnimating(true);
+        let stepIndex = 0;
+        let lastTime = 0;
+        const speed = 40; // ms per step
+
+        const newStates = new Map();
+
+        const tick = (timestamp) => {
+            if (!lastTime) lastTime = timestamp;
+            const elapsed = timestamp - lastTime;
+
+            if (elapsed > speed) {
+                // Process one step
+                if (stepIndex < sortedSteps.length) {
+                    const step = sortedSteps[stepIndex];
+                    // Handle PascalCase (backend) vs camelCase
+                    const point = step.point || step.Point;
+                    const type = step.type || step.Type;
+
+                    if (point) {
+                        const x = point.x !== undefined ? point.x : point.X;
+                        const y = point.y !== undefined ? point.y : point.Y;
+                        const key = `${x},${y}`;
+
+                        // Update state map
+                        newStates.set(key, type);
+                        setCellStates(new Map(newStates));
+                    }
+
+                    stepIndex++;
+                    lastTime = timestamp;
+                } else {
+                    // Animation complete
+                    // Explicitly highlight the final path as per requirements
+                    if (finalPath && finalPath.length > 0) {
+                        finalPath.forEach(p => {
+                            const x = p.x !== undefined ? p.x : p.X;
+                            const y = p.y !== undefined ? p.y : p.Y;
+                            newStates.set(`${x},${y}`, 'PATH');
+                        });
+                        setCellStates(new Map(newStates));
+                    }
+
+                    setIsAnimating(false);
+                    return;
+                }
+            }
+
+            animationRef.current = requestAnimationFrame(tick);
+        };
+
+        animationRef.current = requestAnimationFrame(tick);
     };
 
     const currentAlgo = ALGORITHM_INFO[selectedAlgo];
@@ -108,7 +207,7 @@ const Labyrinth = () => {
                     <div className="labyrinth-card">
                         <div className="maze-display-frame">
                             {mazeData ? (
-                                <MazeRenderer mazeData={mazeData} />
+                                <MazeRenderer mazeData={mazeData} cellStates={cellStates} />
                             ) : (
                                 <div className="maze-placeholder">
                                     <div className="maze-placeholder-icon">🗺️</div>
