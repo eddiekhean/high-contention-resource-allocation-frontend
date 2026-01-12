@@ -270,7 +270,8 @@
 
 /* Algorithm Section */
 .algo-section {
-    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .algo-panel h2 {

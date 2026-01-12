@@ -55,14 +55,18 @@ const MazeRenderer = ({ mazeData, cellStates }) => {
                 let padding = 0; // Default padding
 
                 if (type === 'VISIT') {
-                    color = '#4aa3df80'; // Light Blue
+                    color = '#4aa3df66'; // Light Blue with transparency
+                }
+                if (type === 'FRONTIER') {
+                    color = '#f9f871'; // Bright Yellow for current head
+                    padding = 0.1;
                 }
                 if (type === 'ENQUEUE') {
-                    color = '#f9f87180'; // Light Yellow
+                    // color = '#f9f87180'; // Optional: show queue
                 }
                 if (type === 'PATH') {
-                    color = '#00cc7a'; // Deep/Rich Green ("đầm")
-                    padding = 0.25; // Smaller path (inset)
+                    color = '#00cc7a'; // Deep/Rich Green
+                    padding = 0.2; // Smaller path (inset)
                 }
 
                 if (color) {

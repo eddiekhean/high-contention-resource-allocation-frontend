@@ -1,0 +1,98 @@
+.algo-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(20, 26, 42, 0.4);
+    border: 1px solid rgba(111, 140, 255, 0.1);
+    border-radius: 12px;
+}
+
+.metrics-title {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #aeb5c5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 12px;
+}
+
+.metrics-title span {
+    display: block;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 700;
+    margin-top: 4px;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.metric-card {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.metric-label {
+    font-size: 0.7rem;
+    color: #aeb5c5;
+    margin-bottom: 4px;
+}
+
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+.metric-value.highlight {
+    color: #00cc7a;
+}
+
+.metric-sub {
+    font-size: 0.65rem;
+    color: #6f8cff;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+
+.complexity-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(111, 140, 255, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.complexity-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.comp-label {
+    color: #c4c4d4;
+}
+
+.comp-val {
+    font-family: 'Fira Code', 'Monaco', monospace;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #ffeb3b;
+    font-size: 0.8rem;
+}

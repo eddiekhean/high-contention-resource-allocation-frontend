@@ -1,6 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import OrbitalBackground from '../common/OrbitalBackground';
 import MazeRenderer from './MazeRenderer';
+import AnimationControls from './AnimationControls';
+import AlgoMetrics from './AlgoMetrics';
 import { generateMaze, submitMaze } from '../../services/simulationApi';
 import './Labyrinth.css';
 
@@ -8,7 +10,7 @@ import './Labyrinth.css';
  * Labyrinth Component
  *
  * An educational UI for explaining and visualizing the Labyrinth (Maze) Problem.
- * Refined to match the project's design language and layout patterns.
+ * Now features a robust animation engine and metrics visualization.
  */
 
 // Content for Algorithm Explanations
@@ -19,16 +21,20 @@ const ALGORITHM_INFO = {
         keyPoints: [
             'Guarantees the shortest path in unweighted mazes.',
             'Uses a queue (FIFO) data structure.',
-            'Explores systematically in all directions.'
+            'Explores systematically in all directions.',
+            'Time Complexity: O(V + E)',
+            'Space Complexity: O(V)'
         ]
     },
     dfs: {
         title: 'Depth-First Search (DFS)',
         description: 'Depth-First Search explores the maze by going as deep as possible along each branch before backtracking.',
         keyPoints: [
-            'Memory-efficient (uses a stack or recursion).',
+            'Memory-efficient (uses a stack or recursion) implementation dependent.',
             'Does not guarantee the shortest path.',
-            'Often used for maze generation itself.'
+            'Often used for maze generation itself.',
+            'Time Complexity: O(V + E)',
+            'Space Complexity: O(V)'
         ]
     },
     astar: {
@@ -37,7 +43,9 @@ const ALGORITHM_INFO = {
         keyPoints: [
             'Combines actual cost from start and estimated cost to goal.',
             'Efficient and optimal if the heuristic is admissible.',
-            'Widely used in gaming and robotics for pathfinding.'
+            'Widely used in gaming and robotics for pathfinding.',
+            'Time Complexity: Depends on heuristic',
+            'Space Complexity: O(V)'
         ]
     },
     greedy: {
@@ -46,7 +54,9 @@ const ALGORITHM_INFO = {
         keyPoints: [
             'Prioritizes speed over optimality.',
             'Can get stuck in local minima or dead ends.',
-            'Fast performance in simple environments.'
+            'Fast performance in simple environments.',
+            'Time Complexity: O(b^m) worst case',
+            'Space Complexity: O(V)'
         ]
     }
 };
@@ -59,9 +69,12 @@ const TRAVERSAL_STRATEGIES = {
 };
 
 const Labyrinth = () => {
+    // UI State
     const [selectedAlgo, setSelectedAlgo] = useState('bfs');
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
-    // Maze Data State
+    // Maze Data
     const [mazeData, setMazeData] = useState(null);
     const [genParams, setGenParams] = useState({
         rows: 20,
@@ -69,26 +82,26 @@ const Labyrinth = () => {
         loop_ratio: 0.5,
         seed: ''
     });
-    const [loading, setLoading] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
-    const [speed, setSpeed] = useState(40);
-    const speedRef = useRef(40);
 
-    // Update ref when speed changes
-    useEffect(() => {
-        speedRef.current = speed;
-    }, [speed]);
+    // Animation Engine State
+    const [steps, setSteps] = useState([]); // Full history of steps
+    const [finalPath, setFinalPath] = useState([]); // Final solution path
+    const [currentStepIndex, setCurrentStepIndex] = useState(0); // Current playback position
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [playbackSpeed, setPlaybackSpeed] = useState(40); // ms per frame
 
+    // Visualization State (Derived)
     const [cellStates, setCellStates] = useState(new Map());
-    const [isAnimating, setIsAnimating] = useState(false);
-    const animationRef = useRef(null);
 
+    // Refs for Animation Loop
+    const animationFrameRef = useRef(null);
+    const lastFrameTimeRef = useRef(0);
+
+    // --- Maze Generation ---
     const handleGenerate = async () => {
         setLoading(true);
-        // Reset states on new generation
-        setCellStates(new Map());
-        setIsAnimating(false);
-        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        resetAnimation();
+        setMazeData(null); // Clear old maze while generating
 
         try {
             const data = await generateMaze({
@@ -100,18 +113,17 @@ const Labyrinth = () => {
             setMazeData(data);
         } catch (error) {
             console.error("Failed to generate maze:", error);
-            // Optionally set error state here or show a toast
+            alert("Failed to generate maze.");
         } finally {
             setLoading(false);
         }
     };
 
+    // --- Maze Solving ---
     const handleSubmit = async () => {
         if (!mazeData) return;
         setSubmitting(true);
-        // Clear previous animation
-        setCellStates(new Map());
-        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        resetAnimation();
 
         const payload = {
             ...mazeData,
@@ -120,229 +132,138 @@ const Labyrinth = () => {
 
         try {
             const result = await submitMaze(payload);
-            console.log("Maze submitted successfully (verified HMR), result:", result);
-            // Handle PascalCase (Path, Steps) or camelCase (path, steps)
-            // Backend seems to return PascalCase based on logs
-            const steps = result.Steps || result.steps;
-            const path = result.Path || result.path;
+            const rawSteps = result.Steps || result.steps || [];
+            const rawPath = result.Path || result.path || [];
 
-            // Start animation
-            animateSolution(steps, path);
+            // Sort steps by index to ensure correct playback order
+            const sortedSteps = [...rawSteps].sort((a, b) => {
+                const stepA = a.step !== undefined ? a.step : a.Step;
+                const stepB = b.step !== undefined ? b.step : b.Step;
+                return stepA - stepB;
+            });
+
+            setSteps(sortedSteps);
+            setFinalPath(rawPath);
+            setCurrentStepIndex(0);
+            setIsPlaying(true); // Auto-start
         } catch (error) {
             console.error("Failed to submit maze:", error);
-            alert("Failed to submit maze. Check console for details.");
+            alert("Failed to solve maze. See console.");
         } finally {
             setSubmitting(false);
         }
     };
 
-    const animateSolution = (steps, finalPath) => {
-        if (!steps || steps.length === 0) {
-            console.warn("No steps to animate. Received:", steps);
+    // --- Animation Logic ---
+
+    const resetAnimation = useCallback(() => {
+        setIsPlaying(false);
+        setCurrentStepIndex(0);
+        setSteps([]);
+        setFinalPath([]);
+        setCellStates(new Map());
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+        }
+    }, []);
+
+    const stepForward = useCallback(() => {
+        setCurrentStepIndex(prev => Math.min(prev + 1, steps.length));
+    }, [steps.length]);
+
+    const stepBackward = useCallback(() => {
+        setCurrentStepIndex(prev => Math.max(0, prev - 1));
+    }, []);
+
+    // The Animation Loop
+    useEffect(() => {
+        if (!isPlaying) {
+            lastFrameTimeRef.current = 0;
             return;
         }
 
-        // Ensure steps are sorted by step index
-        const sortedSteps = [...steps].sort((a, b) => {
-            const stepA = a.step !== undefined ? a.step : a.Step;
-            const stepB = b.step !== undefined ? b.step : b.Step;
-            return stepA - stepB;
-        });
+        const loop = (timestamp) => {
+            if (!lastFrameTimeRef.current) lastFrameTimeRef.current = timestamp;
+            const elapsed = timestamp - lastFrameTimeRef.current;
 
-        setIsAnimating(true);
-        let stepIndex = 0;
-        let lastTime = 0;
-        // speed is now read from ref in loop
-
-        const newStates = new Map();
-
-        const tick = (timestamp) => {
-            if (!lastTime) lastTime = timestamp;
-            const elapsed = timestamp - lastTime;
-
-            if (elapsed > speedRef.current) {
-                // Process one step
-                if (stepIndex < sortedSteps.length) {
-                    const step = sortedSteps[stepIndex];
-                    // Handle PascalCase (backend) vs camelCase
-                    const point = step.point || step.Point;
-                    const type = step.type || step.Type;
-
-                    if (point) {
-                        const x = point.x !== undefined ? point.x : point.X;
-                        const y = point.y !== undefined ? point.y : point.Y;
-                        const key = `${x},${y}`;
-
-                        // Update state map
-                        newStates.set(key, type);
-                        setCellStates(new Map(newStates));
+            if (elapsed > playbackSpeed) {
+                setCurrentStepIndex(prev => {
+                    const next = prev + 1;
+                    if (next > steps.length) {
+                        setIsPlaying(false); // Stop at end
+                        return prev;
                     }
-
-                    stepIndex++;
-                    lastTime = timestamp;
-                } else {
-                    // Animation complete
-                    // Explicitly highlight the final path as per requirements
-                    if (finalPath && finalPath.length > 0) {
-                        finalPath.forEach(p => {
-                            const x = p.x !== undefined ? p.x : p.X;
-                            const y = p.y !== undefined ? p.y : p.Y;
-                            newStates.set(`${x},${y}`, 'PATH');
-                        });
-                        setCellStates(new Map(newStates));
-                    }
-
-                    setIsAnimating(false);
-                    return;
-                }
+                    return next;
+                });
+                lastFrameTimeRef.current = timestamp;
             }
 
-            animationRef.current = requestAnimationFrame(tick);
+            animationFrameRef.current = requestAnimationFrame(loop);
         };
 
-        animationRef.current = requestAnimationFrame(tick);
-    };
+        animationFrameRef.current = requestAnimationFrame(loop);
+
+        return () => {
+            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        };
+    }, [isPlaying, playbackSpeed, steps.length]);
+
+    // Derived State Computation: Update Visuals when Step Index Changes
+    // Optimized: Only re-calc when index changes. 
+    // For very large mazes, consider incremental updates, but for <50x50 this is fine.
+    useEffect(() => {
+        if (!steps.length) return;
+
+        const newMap = new Map();
+
+        // 1. Draw Visited Cells up to current index
+        // We limit the number of items we process if we just want to jump to state
+        const limit = Math.min(currentStepIndex, steps.length);
+
+        for (let i = 0; i < limit; i++) {
+            const step = steps[i];
+            const p = step.point || step.Point;
+            // Standardize coordinate keys
+            const x = p.x !== undefined ? p.x : p.X;
+            const y = p.y !== undefined ? p.y : p.Y;
+
+            // Mark as visited
+            newMap.set(`${x},${y}`, 'VISIT');
+        }
+
+        // 2. Highlight the "Frontier" (the very last step processed)
+        if (limit > 0 && limit <= steps.length) {
+            const headStep = steps[limit - 1];
+            const p = headStep.point || headStep.Point;
+            const x = p.x !== undefined ? p.x : p.X;
+            const y = p.y !== undefined ? p.y : p.Y;
+            newMap.set(`${x},${y}`, 'FRONTIER');
+        }
+
+        // 3. Draw Path if animation is complete or near end
+        // Only show path if we are at the very end
+        if (currentStepIndex >= steps.length && finalPath.length > 0) {
+            finalPath.forEach(node => {
+                const x = node.x !== undefined ? node.x : node.X;
+                const y = node.y !== undefined ? node.y : node.Y;
+                newMap.set(`${x},${y}`, 'PATH');
+            });
+        }
+
+        setCellStates(newMap);
+
+    }, [currentStepIndex, steps, finalPath]);
+
 
     const currentAlgo = ALGORITHM_INFO[selectedAlgo];
+    const gridSize = genParams.rows * genParams.cols;
 
     return (
         <div className="labyrinth-page">
             <OrbitalBackground />
             <div className="labyrinth-container">
-                {/* PRIMARY CONTENT: SIMULATION ZONE */}
-                <div className="simulation-zone">
-                    {/* LEFT: MAZE VISUALIZATION & CONTROLS */}
-                    <section className="maze-section">
-                        <div className="labyrinth-card maze-card">
-                            <div className="maze-header">
-                                <h2>Maze Visualization</h2>
-                                <div className="maze-status">
-                                    {loading && <span className="status-badge loading">Generating</span>}
-                                    {submitting && <span className="status-badge active">Solving</span>}
-                                </div>
-                            </div>
-
-                            <div className="maze-display-frame">
-                                {mazeData ? (
-                                    <MazeRenderer mazeData={mazeData} cellStates={cellStates} />
-                                ) : (
-                                    <div className="maze-placeholder">
-                                        <div className="maze-placeholder-icon">🗺️</div>
-                                        <p>No maze generated</p>
-                                        <p style={{ fontSize: '13px', marginTop: '8px', opacity: 0.6 }}>
-                                            Set parameters and click Generate
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Control Panel inside the maze card for tight integration */}
-                            <div className="control-panel">
-                                <div className="control-group">
-                                    <label>Rows</label>
-                                    <input
-                                        type="number"
-                                        value={genParams.rows}
-                                        onChange={e => setGenParams({ ...genParams, rows: e.target.value })}
-                                        min="5" max="50"
-                                    />
-                                </div>
-                                <div className="control-group">
-                                    <label>Cols</label>
-                                    <input
-                                        type="number"
-                                        value={genParams.cols}
-                                        onChange={e => setGenParams({ ...genParams, cols: e.target.value })}
-                                        min="5" max="50"
-                                    />
-                                </div>
-                                <div className="control-group">
-                                    <label>Loop Ratio</label>
-                                    <input
-                                        type="number"
-                                        value={genParams.loop_ratio}
-                                        onChange={e => setGenParams({ ...genParams, loop_ratio: e.target.value })}
-                                        min="0" max="1" step="0.1"
-                                    />
-                                </div>
-                                <div className="control-group">
-                                    <label>Seed</label>
-                                    <input
-                                        type="number"
-                                        value={genParams.seed}
-                                        onChange={e => setGenParams({ ...genParams, seed: e.target.value })}
-                                        placeholder="Random"
-                                    />
-                                </div>
-                                <div className="control-group speed-control">
-                                    <label>Speed: {speed}ms</label>
-                                    <input
-                                        type="range"
-                                        min="10"
-                                        max="500"
-                                        step="10"
-                                        value={speed}
-                                        onChange={e => setSpeed(Number(e.target.value))}
-                                    />
-                                </div>
-
-                                <div className="action-buttons">
-                                    <button
-                                        className="action-button secondary"
-                                        onClick={handleGenerate}
-                                        disabled={loading}
-                                    >
-                                        {loading ? '...' : 'Generate'}
-                                    </button>
-                                    <button
-                                        className="action-button primary"
-                                        onClick={handleSubmit}
-                                        disabled={submitting || !mazeData}
-                                    >
-                                        {submitting ? '...' : 'Solve'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* RIGHT: ALGORITHM EXPLANATION */}
-                    <section className="algo-section">
-                        <div className="labyrinth-card algo-panel">
-                            <h2>
-                                <span>⚙️</span> Algorithm
-                            </h2>
-
-                            <div className="algo-selector-wrapper">
-                                <label>Traversal Strategy</label>
-                                <select
-                                    className="algo-select"
-                                    value={selectedAlgo}
-                                    onChange={(e) => setSelectedAlgo(e.target.value)}
-                                >
-                                    <option value="bfs">Breadth-First Search (BFS)</option>
-                                    <option value="dfs">Depth-First Search (DFS)</option>
-                                    <option value="astar">A* Search</option>
-                                    <option value="greedy">Greedy Best-First Search</option>
-                                </select>
-                            </div>
-
-                            <div className="algo-content">
-                                <h3>{currentAlgo.title}</h3>
-                                <p>{currentAlgo.description}</p>
-                                <h4>Key Characteristics:</h4>
-                                <ul>
-                                    {currentAlgo.keyPoints.map((point, index) => (
-                                        <li key={index}>{point}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                {/* SECONDARY CONTENT: CONTEXT & INFO */}
-                <section className="context-section">
+                {/* HEADER: CONTEXT & INFO */}
+                <section className="context-section" style={{ marginBottom: '32px' }}>
                     <div className="labyrinth-card intro-panel">
                         <div className="intro-content">
                             <div>
@@ -365,6 +286,166 @@ const Labyrinth = () => {
                         </div>
                     </div>
                 </section>
+
+                {/* PRIMARY CONTENT: SIMULATION ZONE */}
+                <div className="simulation-zone">
+                    {/* LEFT: MAZE VISUALIZATION & CONTROLS */}
+                    <section className="maze-section">
+                        <div className="labyrinth-card maze-card">
+                            <div className="maze-header">
+                                <h2>Maze Visualization</h2>
+                                <div className="maze-status">
+                                    {loading && <span className="status-badge loading">Generating</span>}
+                                    {submitting && <span className="status-badge active">Solving</span>}
+                                    {(!loading && !submitting && isPlaying) && <span className="status-badge active">Animating</span>}
+                                </div>
+                            </div>
+
+                            <div className="maze-display-frame">
+                                {mazeData ? (
+                                    <MazeRenderer mazeData={mazeData} cellStates={cellStates} />
+                                ) : (
+                                    <div className="maze-placeholder">
+                                        <div className="maze-placeholder-icon">🗺️</div>
+                                        <p>No maze generated</p>
+                                        <p style={{ fontSize: '13px', marginTop: '8px', opacity: 0.6 }}>
+                                            Set parameters and click Generate
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Control Panel: Generation Params */}
+                            <div className="control-panel">
+                                <div className="control-group">
+                                    <label>Rows</label>
+                                    <input
+                                        type="number"
+                                        value={genParams.rows}
+                                        onChange={e => setGenParams({ ...genParams, rows: e.target.value })}
+                                        min="5" max="50"
+                                        disabled={loading || isPlaying}
+                                    />
+                                </div>
+                                <div className="control-group">
+                                    <label>Cols</label>
+                                    <input
+                                        type="number"
+                                        value={genParams.cols}
+                                        onChange={e => setGenParams({ ...genParams, cols: e.target.value })}
+                                        min="5" max="50"
+                                        disabled={loading || isPlaying}
+                                    />
+                                </div>
+                                <div className="control-group">
+                                    <label>Loop Ratio</label>
+                                    <input
+                                        type="number"
+                                        value={genParams.loop_ratio}
+                                        onChange={e => setGenParams({ ...genParams, loop_ratio: e.target.value })}
+                                        min="0" max="1" step="0.1"
+                                        disabled={loading || isPlaying}
+                                    />
+                                </div>
+                                <div className="control-group">
+                                    <label>Seed</label>
+                                    <input
+                                        type="number"
+                                        value={genParams.seed}
+                                        onChange={e => setGenParams({ ...genParams, seed: e.target.value })}
+                                        placeholder="Random"
+                                        disabled={loading || isPlaying}
+                                    />
+                                </div>
+
+                                <div className="action-buttons">
+                                    <button
+                                        className="action-button secondary"
+                                        onClick={handleGenerate}
+                                        disabled={loading || isPlaying}
+                                    >
+                                        {loading ? '...' : 'Generate'}
+                                    </button>
+                                    <button
+                                        className="action-button primary"
+                                        onClick={handleSubmit}
+                                        disabled={submitting || !mazeData}
+                                    >
+                                        {submitting ? '...' : 'Solve'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* RIGHT: ALGORITHM EXPLANATION & METRICS */}
+                    <section className="algo-section">
+                        {/* Playback Controls */}
+                        {steps.length > 0 && (
+                            <div className="labyrinth-card playback-card" style={{ marginBottom: '24px' }}>
+                                <AnimationControls
+                                    isPlaying={isPlaying}
+                                    onPlayPause={() => setIsPlaying(!isPlaying)}
+                                    onStepForward={stepForward}
+                                    onStepBackward={stepBackward}
+                                    onReset={() => {
+                                        setIsPlaying(false);
+                                        setCurrentStepIndex(0);
+                                    }}
+                                    speed={playbackSpeed}
+                                    onSpeedChange={setPlaybackSpeed}
+                                    progress={steps.length ? currentStepIndex / steps.length : 0}
+                                    totalSteps={steps.length}
+                                />
+                            </div>
+                        )}
+
+                        {/* Real-time Metrics */}
+                        {steps.length > 0 && (
+                            <div className="labyrinth-card algo-panel" style={{ marginBottom: '24px' }}>
+                                <AlgoMetrics
+                                    algorithmName={TRAVERSAL_STRATEGIES[selectedAlgo]}
+                                    stepsExplored={currentStepIndex}
+                                    pathLength={finalPath.length}
+                                    gridSize={gridSize}
+                                    timeComplexity={currentAlgo.keyPoints.find(k => k.includes('Time Complexity'))?.split(': ')[1]}
+                                    spaceComplexity={currentAlgo.keyPoints.find(k => k.includes('Space Complexity'))?.split(': ')[1]}
+                                />
+                            </div>
+                        )}
+
+                        {/* Algorithm Explanation (Always Visible) */}
+                        <div className="labyrinth-card algo-panel">
+                            <h2><span>⚙️</span> Algorithm</h2>
+                            <div className="algo-selector-wrapper">
+                                <label>Traversal Strategy</label>
+                                <select
+                                    className="algo-select"
+                                    value={selectedAlgo}
+                                    onChange={(e) => setSelectedAlgo(e.target.value)}
+                                    disabled={isPlaying}
+                                >
+                                    <option value="bfs">Breadth-First Search (BFS)</option>
+                                    <option value="dfs">Depth-First Search (DFS)</option>
+                                    <option value="astar">A* Search</option>
+                                    <option value="greedy">Greedy Best-First Search</option>
+                                </select>
+                            </div>
+                            <div className="algo-content">
+                                <h3>{currentAlgo.title}</h3>
+                                <p>{currentAlgo.description}</p>
+                                <h4>Key Characteristics:</h4>
+                                <ul>
+                                    {currentAlgo.keyPoints.map((point, index) => (
+                                        <li key={index}>{point}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+
             </div>
         </div>
     );
