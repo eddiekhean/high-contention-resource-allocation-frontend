@@ -17,7 +17,7 @@ export default function HomeHero() {
           Learning backend systems by building and simulating real problems.
         </p>
 
-        <Link to="/simulations/voucher-allocation" className="home-hero__cta">
+        <Link to="/leetcode/labyrinth" className="home-hero__cta">
           View the first project →
         </Link>
       </div>
