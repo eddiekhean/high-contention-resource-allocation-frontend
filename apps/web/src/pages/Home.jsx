@@ -44,8 +44,6 @@ export default function Home() {
     const checkScrollBoundary = (direction) => {
       const { isAtTop, isAtBottom } = getScrollBounds();
       const result = (direction > 0 && isAtBottom) || (direction < 0 && isAtTop);
-
-      const result = (direction > 0 && isAtBottom) || (direction < 0 && isAtTop);
       return result;
     };
 
