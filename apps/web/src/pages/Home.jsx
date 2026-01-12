@@ -4,12 +4,50 @@ import HomeContent from "../components/home/HomeContent";
 import PlanetBackground from "../components/home/PlanetBackground";
 import PullToRefresh from "../components/common/PullToRefresh";
 
+const DEBUG_SCROLL = true;
+
+const debugLog = (group, details) => {
+  if (!DEBUG_SCROLL) return;
+  console.groupCollapsed(`[SCROLL-DEBUG] ${group} @ ${performance.now().toFixed(2)}ms`);
+  console.log(details);
+  console.groupEnd();
+};
+
+const DebugOverlay = ({ metrics }) => {
+  if (!DEBUG_SCROLL || !metrics) return null;
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      background: 'rgba(0,0,0,0.8)',
+      color: '#0f0',
+      padding: '8px',
+      fontSize: '10px',
+      fontFamily: 'monospace',
+      zIndex: 9999,
+      pointerEvents: 'none',
+      whiteSpace: 'pre'
+    }}>
+      <div>ScrollTop: {metrics.scrollTop?.toFixed(1)}</div>
+      <div>ScrollH: {metrics.scrollHeight}</div>
+      <div>ClientH: {metrics.clientHeight}</div>
+      <div>AtTop: {String(metrics.isAtTop)}</div>
+      <div>AtBottom: {String(metrics.isAtBottom)}</div>
+      <div>Section: {metrics.sectionIndex}</div>
+      <div>DeltaY: {metrics.deltaY?.toFixed(1)}</div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const isThrottling = useRef(false);
   const overscrollAccumulator = useRef(0);
+  const touchStartBounds = useRef({ isAtTop: false, isAtBottom: false });
+  const [debugMetrics, setDebugMetrics] = useState({});
 
   const TOTAL_SECTIONS = 7; // 1 Hero + 6 Content sections
   const THROTTLE_DELAY = 800;
@@ -20,29 +58,59 @@ export default function Home() {
     const touchStartPos = { y: 0 };
 
     const getScrollBounds = () => {
-      if (activeSectionIndex === 0) return { isAtTop: true, isAtBottom: true };
+      const metrics = {
+        sectionIndex: activeSectionIndex,
+        scrollTop: 0,
+        scrollHeight: 0,
+        clientHeight: 0,
+        isAtTop: false,
+        isAtBottom: false
+      };
 
-      const content = document.querySelector(".home-content");
-      if (!content) return { isAtTop: true, isAtBottom: true };
+      if (activeSectionIndex === 0) {
+        metrics.isAtTop = true;
+        metrics.isAtBottom = true;
+      } else {
+        const content = document.querySelector(".home-content");
+        if (!content) {
+          metrics.isAtTop = true;
+          metrics.isAtBottom = true;
+        } else {
+          const { scrollTop, scrollHeight, clientHeight } = content;
+          metrics.scrollTop = scrollTop;
+          metrics.scrollHeight = scrollHeight;
+          metrics.clientHeight = clientHeight;
 
-      const { scrollTop, scrollHeight, clientHeight } = content;
+          // Precision tolerance for high-DPI displays and mobile quirks
+          // Increased to 10px to handle mobile bouncing and float precision
+          const TOLERANCE = 10;
 
-      // Precision tolerance for high-DPI displays and mobile quirks
-      // Increased to 10px to handle mobile bouncing and float precision
-      const TOLERANCE = 10;
+          metrics.isAtTop = scrollTop <= TOLERANCE;
+          // Handle overscroll (rubber banding) on iOS where scrollTop can exceed max
+          metrics.isAtBottom = (scrollTop + clientHeight) >= (scrollHeight - TOLERANCE);
 
-      const isAtTop = scrollTop <= TOLERANCE;
-      const isAtBottom = (scrollTop + clientHeight) >= (scrollHeight - TOLERANCE);
+          if (DEBUG_SCROLL) {
+            if (scrollTop < 0) console.log("!! OVERSCROLL_TOP !!");
+            if (scrollTop + clientHeight > scrollHeight) console.log("!! OVERSCROLL_BOTTOM !!");
+          }
+        }
+      }
 
-      return { isAtTop, isAtBottom };
+      if (DEBUG_SCROLL) {
+        setDebugMetrics(prev => ({ ...prev, ...metrics }));
+      }
+
+      return { isAtTop: metrics.isAtTop, isAtBottom: metrics.isAtBottom };
     };
 
     const checkScrollBoundary = (direction) => {
       const { isAtTop, isAtBottom } = getScrollBounds();
-      if (direction > 0 && isAtBottom) return true; // Scrolling down at bottom
-      if (direction < 0 && isAtTop) return true;    // Scrolling up at top
+      const result = (direction > 0 && isAtBottom) || (direction < 0 && isAtTop);
 
-      return false; // Stay inside if we can scroll internally
+      if (DEBUG_SCROLL && result) {
+        debugLog("checkScrollBoundary: ALLOW_SWITCH", { direction, isAtTop, isAtBottom });
+      }
+      return result;
     };
 
     const handleWheel = (e) => {
@@ -71,8 +139,12 @@ export default function Home() {
     };
 
     const handleTouchStart = (e) => {
-      touchStartPos.y = e.touches[0].clientY;
-      touchStartBounds.current = getScrollBounds();
+      const y = e.touches[0].clientY;
+      touchStartPos.y = y;
+      const bounds = getScrollBounds();
+      touchStartBounds.current = bounds;
+
+      debugLog("touchstart", { y, bounds });
     };
 
     const handleTouchMove = (e) => {
@@ -80,6 +152,10 @@ export default function Home() {
 
       const currentY = e.touches[0].clientY;
       const diff = currentY - touchStartPos.y;
+
+      if (DEBUG_SCROLL) {
+        setDebugMetrics(prev => ({ ...prev, deltaY: diff }));
+      }
 
       // Pull to refresh logic: only on Hero section at the top
       if (activeSectionIndex === 0 && diff > 0) {
@@ -110,6 +186,8 @@ export default function Home() {
         const touchEndPos = e.changedTouches[0].clientY;
         const diff = touchStartPos.y - touchEndPos;
 
+        debugLog("touchend", { touchEndPos, diff, startBounds: touchStartBounds.current });
+
         if (Math.abs(diff) > touchEndScale) {
           const direction = diff > 0 ? 1 : -1;
 
@@ -117,7 +195,15 @@ export default function Home() {
           if (direction > 0 && touchStartBounds.current.isAtBottom) validSwitch = true;
           if (direction < 0 && touchStartBounds.current.isAtTop) validSwitch = true;
 
+          debugLog("Section Switch Decision", {
+            direction: direction > 0 ? "NEXT" : "PREV",
+            validSwitch,
+            isAtTop: touchStartBounds.current.isAtTop,
+            isAtBottom: touchStartBounds.current.isAtBottom
+          });
+
           if (validSwitch && checkScrollBoundary(direction)) {
+            debugLog("SWITCHING SECTION", { direction });
             changeSection(direction);
           }
         }
@@ -151,6 +237,7 @@ export default function Home() {
 
   return (
     <div className="home-fullpage-wrapper">
+      <DebugOverlay metrics={debugMetrics} />
       <PullToRefresh
         pullDistance={pullDistance}
         threshold={REFRESH_THRESHOLD}
