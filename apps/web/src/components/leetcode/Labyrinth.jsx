@@ -323,7 +323,7 @@ const Labyrinth = () => {
                                         type="number"
                                         value={genParams.rows}
                                         onChange={e => setGenParams({ ...genParams, rows: e.target.value })}
-                                        min="5" max="50"
+                                        min="5" max="100"
                                         disabled={loading || isPlaying}
                                     />
                                 </div>
@@ -333,7 +333,7 @@ const Labyrinth = () => {
                                         type="number"
                                         value={genParams.cols}
                                         onChange={e => setGenParams({ ...genParams, cols: e.target.value })}
-                                        min="5" max="50"
+                                        min="5" max="100"
                                         disabled={loading || isPlaying}
                                     />
                                 </div>
@@ -343,7 +343,7 @@ const Labyrinth = () => {
                                         type="number"
                                         value={genParams.loop_ratio}
                                         onChange={e => setGenParams({ ...genParams, loop_ratio: e.target.value })}
-                                        min="0" max="1" step="0.1"
+                                        min="0.2" max="0.5" step="0.1"
                                         disabled={loading || isPlaying}
                                     />
                                 </div>
