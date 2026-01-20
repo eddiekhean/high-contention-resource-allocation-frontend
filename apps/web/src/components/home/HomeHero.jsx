@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./home.css";
 import OrbitalBackground from "../common/OrbitalBackground";
-export default function HomeHero() {
+export default function HomeHero({ onNext }) {
   return (
     <section className="home-hero">
       <OrbitalBackground />
@@ -16,11 +16,11 @@ export default function HomeHero() {
         <p className="home-hero__subtitle">
           Learning backend systems by building and simulating real problems.
         </p>
-
-        <Link to="/leetcode/labyrinth" className="home-hero__cta">
-          View the first project →
-        </Link>
       </div>
+
+      <button className="home-hero__scroll-indicator" onClick={onNext}>
+        Scroll down to see more
+      </button>
     </section>
   );
 }

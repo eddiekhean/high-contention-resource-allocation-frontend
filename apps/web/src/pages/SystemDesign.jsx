@@ -1,5 +1,4 @@
-import React from "react";
-import "./placeholder.css";
+import React, { useState } from "react";
 
 export default function SystemDesign() {
     return (

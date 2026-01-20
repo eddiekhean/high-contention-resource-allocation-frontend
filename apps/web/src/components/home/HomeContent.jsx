@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import { Link } from "react-router-dom";
 import useReveal from "../../hooks/useReveal";
 
 // --- Data ---
@@ -210,6 +211,12 @@ const SECTIONS_DATA = [
         and a commitment to building software that works reliably.
       </span>,
     ],
+    cta: (
+      <Link to="/leetcode/labyrinth" className="home-hero__cta">
+        View the first project →
+      </Link>
+    ),
+
   },
 ];
 
@@ -251,6 +258,14 @@ const SectionRenderer = memo(({ data, isActive }) => {
               <p>{content}</p>
             </RevealItem>
           ))}
+          {data.cta && (
+            <RevealItem
+              isActive={isActive}
+              delayClass={`delay-${data.paragraphs.length + 1}`}
+            >
+              {data.cta}
+            </RevealItem>
+          )}
         </div>
       </div>
     </section>

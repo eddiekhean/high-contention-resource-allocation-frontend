@@ -19,6 +19,18 @@ export default function Home() {
   const REFRESH_THRESHOLD = 120;
   const OVERSCROLL_THRESHOLD = 15; // Require some extra wheel movement to switch
 
+  const changeSection = (direction) => {
+    setActiveSectionIndex((prevIndex) => {
+      const newIndex = prevIndex + direction;
+      return Math.max(0, Math.min(TOTAL_SECTIONS - 1, newIndex));
+    });
+
+    isThrottling.current = true;
+    setTimeout(() => {
+      isThrottling.current = false;
+    }, THROTTLE_DELAY);
+  };
+
   useEffect(() => {
     const touchStartPos = { y: 0 };
 
@@ -127,17 +139,8 @@ export default function Home() {
       }
     };
 
-    const changeSection = (direction) => {
-      setActiveSectionIndex((prevIndex) => {
-        const newIndex = prevIndex + direction;
-        return Math.max(0, Math.min(TOTAL_SECTIONS - 1, newIndex));
-      });
+    // changeSection definition moved out of useEffect
 
-      isThrottling.current = true;
-      setTimeout(() => {
-        isThrottling.current = false;
-      }, THROTTLE_DELAY);
-    };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -167,7 +170,7 @@ export default function Home() {
         totalSections={TOTAL_SECTIONS}
       />
 
-      {activeSectionIndex === 0 && <HomeHero />}
+      {activeSectionIndex === 0 && <HomeHero onNext={() => changeSection(1)} />}
 
       {/* Content Layer */}
       {activeSectionIndex > 0 && (
