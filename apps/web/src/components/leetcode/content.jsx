@@ -64,37 +64,6 @@ export default function LeetCodeContent() {
                         </Link>
                     </li>
 
-                    <li>
-                        <Link
-                            to="/leetcode/arrays-and-hashing"
-                            className="nav-card"
-                        >
-                            <div className="item-header">
-                                <span className="name">
-                                    Arrays & Hashing Patterns
-                                </span>
-                            </div>
-                            <span className="meta">
-                                Frequency · Prefix Sum · Sliding Window
-                            </span>
-                        </Link>
-                    </li>
-
-                    <li>
-                        <Link
-                            to="/leetcode/two-pointers"
-                            className="nav-card"
-                        >
-                            <div className="item-header">
-                                <span className="name">
-                                    Two Pointers & Interval Reasoning
-                                </span>
-                            </div>
-                            <span className="meta">
-                                Ordering · Invariants · Linear Scans
-                            </span>
-                        </Link>
-                    </li>
                 </ul>
             </section>
         </main>
